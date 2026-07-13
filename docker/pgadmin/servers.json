@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "WMS PostgreSQL (localhost:5432)",
+      "Group": "WMS",
+      "Host": "host.docker.internal",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "postgres",
+      "PassFile": "/pgpass",
+      "SSLMode": "prefer"
+    }
+  }
+}
