@@ -1,0 +1,7 @@
+spring:
+  kafka:
+    bootstrap-servers: wms-kafka:9093
+
+  data:
+    redis:
+      host: wms-redis

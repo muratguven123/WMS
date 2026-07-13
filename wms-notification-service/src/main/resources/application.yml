@@ -1,0 +1,56 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: wms-notification-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/wms-realm}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/wms-realm/protocol/openid-connect/certs}
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: 6379
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: wms-notification-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.wms.events
+      auto-offset-reset: earliest
+    listener:
+      auto-startup: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+    time-zone: UTC
+
+wms:
+  security:
+    keycloak:
+      client-id: ${KEYCLOAK_CLIENT_ID:wms-api}
+    cors:
+      allowed-origin-patterns: ${WMS_CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:*,http://127.0.0.1:*}
+  redis:
+    relay-channel: wms:stomp:relay
+
+logging:
+  level:
+    com.wms.notification: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
