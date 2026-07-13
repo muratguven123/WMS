@@ -1,0 +1,199 @@
+{
+  "realm": "wms-realm",
+  "displayName": "WMS Realm",
+  "enabled": true,
+  "attributes": {
+    "wms.bootstrap.version": "4"
+  },
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": false,
+  "accessTokenLifespan": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "roles": {
+    "realm": [
+      { "name": "WMS_ADMIN", "description": "Tüm sistem yönetimi" },
+      { "name": "WAREHOUSE_MANAGER", "description": "Depo yöneticisi" },
+      { "name": "INBOUND_CLERK", "description": "Mal kabul operatörü" },
+      { "name": "INVENTORY_CLERK", "description": "Envanter operatörü" },
+      { "name": "PICKER", "description": "Sipariş toplama operatörü" },
+      { "name": "PACKER", "description": "Paketleme operatörü" },
+      { "name": "SHIPPING_CLERK", "description": "Sevkiyat operatörü" },
+      { "name": "FINANCE_USER", "description": "Finans görüntüleme/işlem" },
+      { "name": "FINANCE_MANAGER", "description": "Finans yönetimi" },
+      { "name": "INTEGRATION_ADMIN", "description": "ERP entegrasyon yönetimi" },
+      { "name": "LOCALIZATION_ADMIN", "description": "Çeviri ve format yönetimi" }
+    ]
+  },
+  "clientScopes": [
+    {
+      "name": "wms-basic",
+      "description": "JWT sub claim (Keycloak 26 uyumlu)",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "sub",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-sub-mapper",
+          "consentRequired": false,
+          "config": {
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "wms-roles",
+      "description": "Realm rolleri (realm_access.roles)",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "name": "wms-claims",
+      "description": "WMS yerel kullanıcı kimliği (wms_user_id JWT claim)",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "wms_user_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "wms_user_id",
+            "claim.name": "wms_user_id",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "multivalued": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "defaultDefaultClientScopes": [
+    "wms-basic",
+    "wms-roles",
+    "wms-claims"
+  ],
+  "clients": [
+    {
+      "clientId": "wms-ui",
+      "name": "WMS UI (SPA)",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "redirectUris": [
+        "http://localhost:5173/*",
+        "http://127.0.0.1:5173/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "+"
+      ],
+      "fullScopeAllowed": true,
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "client.use.lightweight.access.token.enabled": "false"
+      }
+    },
+    {
+      "clientId": "wms-api",
+      "name": "WMS API (Resource Server)",
+      "enabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "secret": "wms-api-dev-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "redirectUris": [
+        "http://localhost:*"
+      ],
+      "webOrigins": [
+        "+"
+      ],
+      "fullScopeAllowed": true,
+      "attributes": {
+        "client.use.lightweight.access.token.enabled": "false"
+      }
+    }
+  ],
+  "users": [
+    {
+      "id": "aaaaaaaa-0000-0000-0000-000000000001",
+      "username": "demo.user",
+      "email": "demo.user@wms.local",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Demo",
+      "lastName": "User",
+      "attributes": {
+        "wms_user_id": [
+          "1"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "demo",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "WMS_ADMIN",
+        "WAREHOUSE_MANAGER",
+        "INBOUND_CLERK",
+        "INVENTORY_CLERK",
+        "PICKER",
+        "PACKER",
+        "SHIPPING_CLERK",
+        "FINANCE_USER",
+        "FINANCE_MANAGER",
+        "INTEGRATION_ADMIN",
+        "LOCALIZATION_ADMIN"
+      ]
+    }
+  ]
+}
