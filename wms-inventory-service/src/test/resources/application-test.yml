@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:wms_inventory_test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    listener:
+      auto-startup: false
+
+wms:
+  core-service:
+    url: http://localhost:8081
+  webclient:
+    connect-timeout-ms: 5000
+    read-timeout-ms: 10000
+    write-timeout-ms: 10000
