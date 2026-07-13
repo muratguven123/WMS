@@ -1,0 +1,60 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: wms-localization-service
+
+  # ============================================================
+  # Keycloak — OAuth2 Resource Server (JWT)
+  # ============================================================
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/wms-realm}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/wms-realm/protocol/openid-connect/certs}
+  
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/wms_localization_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      time-to-live: 86400000 # 24 Hours in milliseconds
+
+logging:
+  level:
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+
+wms:
+  security:
+    cors:
+      # UI origin'leri — virgulle ayrilmis liste
+      allowed-origin-patterns: ${WMS_CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:*,http://127.0.0.1:*}
+  services:
+    core:
+      base-url: ${WMS_CORE_SERVICE_URL:http://localhost:8081}
+  i18n:
+    auto-translate-enabled: ${WMS_AUTO_TRANSLATE:true}
+    libretranslate-url: ${LIBRETRANSLATE_URL:http://localhost:5000/translate}
+    mymemory-email: ${MYMEMORY_EMAIL:}
+    translate-delay-ms: 120
