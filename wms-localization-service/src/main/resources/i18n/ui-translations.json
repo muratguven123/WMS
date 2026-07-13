@@ -1,0 +1,1716 @@
+{
+  "keys": {
+    "nav.group.operations": {
+      "tr": "Operasyon",
+      "en": "Operations"
+    },
+    "nav.group.localization": {
+      "tr": "Lokalizasyon",
+      "en": "Localization"
+    },
+    "nav.group.finance": {
+      "tr": "Finans & Vergi",
+      "en": "Finance & Tax"
+    },
+    "nav.group.admin": {
+      "tr": "Yönetim",
+      "en": "Administration"
+    },
+    "nav.dashboard": {
+      "tr": "Dashboard",
+      "en": "Dashboard"
+    },
+    "nav.rackView": {
+      "tr": "Raf Yerleşimi",
+      "en": "Rack Layout"
+    },
+    "nav.inbound": {
+      "tr": "Mal Kabul",
+      "en": "Inbound Receiving"
+    },
+    "nav.transfer": {
+      "tr": "Stok Hareketleri",
+      "en": "Stock Movements"
+    },
+    "nav.picking": {
+      "tr": "Sipariş Toplama",
+      "en": "Order Picking"
+    },
+    "nav.shipping": {
+      "tr": "Paketleme & Sevkiyat",
+      "en": "Packing & Shipping"
+    },
+    "nav.orgHierarchy": {
+      "tr": "Organizasyon Yapısı",
+      "en": "Organization Structure"
+    },
+    "nav.languages": {
+      "tr": "Dil Yönetimi",
+      "en": "Language Management"
+    },
+    "nav.localizationSettings": {
+      "tr": "Bölgesel Ayarlar",
+      "en": "Regional Settings"
+    },
+    "nav.addressMaster": {
+      "tr": "Adres Yönetimi",
+      "en": "Address Management"
+    },
+    "nav.workflowConfig": {
+      "tr": "Süreç Konfigürasyonu",
+      "en": "Process Configuration"
+    },
+    "nav.approvalQueue": {
+      "tr": "Onay Kuyruğu",
+      "en": "Approval Queue"
+    },
+    "nav.dynamicUi": {
+      "tr": "Dinamik Alan Yönetimi",
+      "en": "Dynamic Field Management"
+    },
+    "nav.integrationMonitor": {
+      "tr": "Entegrasyon İzleme",
+      "en": "Integration Monitor"
+    },
+    "nav.auditLog": {
+      "tr": "Audit Log",
+      "en": "Audit Log"
+    },
+    "nav.currency": {
+      "tr": "Kur Yönetimi",
+      "en": "Exchange Rates"
+    },
+    "nav.billing": {
+      "tr": "Çoklu Para Birimi Faturalama",
+      "en": "Multi-Currency Billing"
+    },
+    "nav.tax": {
+      "tr": "Vergi Yönetimi",
+      "en": "Tax Management"
+    },
+    "common.loading": {
+      "tr": "Yükleniyor...",
+      "en": "Loading..."
+    },
+    "common.save": {
+      "tr": "Kaydet",
+      "en": "Save"
+    },
+    "common.add": {
+      "tr": "Ekle",
+      "en": "Add"
+    },
+    "common.update": {
+      "tr": "Güncelle",
+      "en": "Update"
+    },
+    "common.delete": {
+      "tr": "Sil",
+      "en": "Delete"
+    },
+    "common.search": {
+      "tr": "Sorgula",
+      "en": "Search"
+    },
+    "common.refresh": {
+      "tr": "Yenile",
+      "en": "Refresh"
+    },
+    "common.close": {
+      "tr": "Kapat",
+      "en": "Close"
+    },
+    "common.actions": {
+      "tr": "İşlemler",
+      "en": "Actions"
+    },
+    "common.active": {
+      "tr": "Aktif",
+      "en": "Active"
+    },
+    "common.passive": {
+      "tr": "Pasif",
+      "en": "Inactive"
+    },
+    "common.yes": {
+      "tr": "Evet",
+      "en": "Yes"
+    },
+    "common.no": {
+      "tr": "Hayır",
+      "en": "No"
+    },
+    "common.date": {
+      "tr": "Tarih",
+      "en": "Date"
+    },
+    "common.status": {
+      "tr": "Durum",
+      "en": "Status"
+    },
+    "common.detail": {
+      "tr": "Detay",
+      "en": "Detail"
+    },
+    "common.empty": {
+      "tr": "Kayıt bulunamadı.",
+      "en": "No records found."
+    },
+    "common.backendGap": {
+      "tr": "Bu ekranın beklediği backend endpoint'i henüz yayınlanmadı. Servis eklendiğinde ekran otomatik çalışacaktır.",
+      "en": "The backend endpoint this screen expects is not published yet. The screen will work automatically once the service is added."
+    },
+    "common.logout": {
+      "tr": "Oturumu Kapat",
+      "en": "Sign Out"
+    },
+    "common.language": {
+      "tr": "Dil",
+      "en": "Language"
+    },
+    "lang.title": {
+      "tr": "Dil Yönetimi",
+      "en": "Language Management"
+    },
+    "lang.subtitle": {
+      "tr": "Sistemdeki diller ve kodsuz yeni dil ekleme (İş İsteri 2)",
+      "en": "System languages & no-code language onboarding (Req. 2)"
+    },
+    "lang.code": {
+      "tr": "Dil Kodu (ISO 639-1)",
+      "en": "Language Code (ISO 639-1)"
+    },
+    "lang.name": {
+      "tr": "Dil Adı",
+      "en": "Language Name"
+    },
+    "lang.default": {
+      "tr": "Varsayılan",
+      "en": "Default"
+    },
+    "lang.addNew": {
+      "tr": "Yeni Dil Ekle",
+      "en": "Add New Language"
+    },
+    "lang.import": {
+      "tr": "Çeviri Dosyası Yükle",
+      "en": "Upload Translation File"
+    },
+    "lang.importHint": {
+      "tr": "translations_{dil}.xlsx veya .json — kod değişikliği gerekmez",
+      "en": "translations_{lang}.xlsx or .json — no code change required"
+    },
+    "lang.export": {
+      "tr": "Dışa Aktar",
+      "en": "Export"
+    },
+    "lang.updatedAt": {
+      "tr": "Güncellenme",
+      "en": "Updated"
+    },
+    "locale.title": {
+      "tr": "Bölgesel Ayarlar",
+      "en": "Regional Settings"
+    },
+    "locale.subtitle": {
+      "tr": "Saat dilimi, tarih/saat ve sayı formatları (İş İsterleri 6-7)",
+      "en": "Timezone, date/time and number formats (Reqs. 6-7)"
+    },
+    "locale.timezone": {
+      "tr": "Saat Dilimi",
+      "en": "Timezone"
+    },
+    "locale.activeFormat": {
+      "tr": "Aktif Format Konfigürasyonu",
+      "en": "Active Format Configuration"
+    },
+    "locale.dateFormat": {
+      "tr": "Tarih Formatı",
+      "en": "Date Format"
+    },
+    "locale.timeFormat": {
+      "tr": "Saat Formatı",
+      "en": "Time Format"
+    },
+    "locale.decimalSep": {
+      "tr": "Ondalık Ayracı",
+      "en": "Decimal Separator"
+    },
+    "locale.thousandSep": {
+      "tr": "Binlik Ayracı",
+      "en": "Thousand Separator"
+    },
+    "locale.preview": {
+      "tr": "Canlı Önizleme",
+      "en": "Live Preview"
+    },
+    "locale.utcNote": {
+      "tr": "Tüm kayıtlar veri tabanında UTC saklanır; gösterim seçilen saat dilimindedir. Yaz saati (DST) geçişleri Intl API ile otomatik yönetilir.",
+      "en": "All records are stored in UTC; display uses the selected timezone. DST transitions are handled automatically via the Intl API."
+    },
+    "locale.serverSource": {
+      "tr": "Kaynak: localization-service /api/v1/formats/active",
+      "en": "Source: localization-service /api/v1/formats/active"
+    },
+    "locale.fallbackSource": {
+      "tr": "Sunucuya ulaşılamadı — uygulama varsayılanları gösteriliyor",
+      "en": "Server unreachable — showing application defaults"
+    },
+    "org.title": {
+      "tr": "Organizasyon Yapısı",
+      "en": "Organization Structure"
+    },
+    "org.subtitle": {
+      "tr": "Holding → Firma → Ülke → Bölge → Şehir → Lokasyon → Depo (İş İsteri 1)",
+      "en": "Holding → Company → Country → Region → City → Location → Warehouse (Req. 1)"
+    },
+    "org.companies": {
+      "tr": "Firmalar",
+      "en": "Companies"
+    },
+    "org.locations": {
+      "tr": "Lokasyonlar",
+      "en": "Locations"
+    },
+    "org.utilization": {
+      "tr": "Depo Doluluk Analizi",
+      "en": "Warehouse Utilization"
+    },
+    "org.switchTo": {
+      "tr": "Bu lokasyona geç",
+      "en": "Switch to this location"
+    },
+    "org.activeTenant": {
+      "tr": "Aktif Bağlam",
+      "en": "Active Context"
+    },
+    "wf.title": {
+      "tr": "Lokasyon Bazlı Süreç Konfigürasyonu",
+      "en": "Location-Based Process Configuration"
+    },
+    "wf.subtitle": {
+      "tr": "Süreç adımlarını parametrik yönet — değişiklikler audit log'a yazılır (İş İsteri 3)",
+      "en": "Manage process steps parametrically — changes are audit-logged (Req. 3)"
+    },
+    "wf.stepConfigId": {
+      "tr": "Adım Konfigürasyon ID (ID)",
+      "en": "Step Config ID (ID)"
+    },
+    "wf.load": {
+      "tr": "Adımı Getir",
+      "en": "Load Step"
+    },
+    "wf.sequence": {
+      "tr": "Sıra",
+      "en": "Sequence"
+    },
+    "wf.mandatory": {
+      "tr": "Zorunlu",
+      "en": "Mandatory"
+    },
+    "wf.requiresApproval": {
+      "tr": "Onay Gerektirir",
+      "en": "Requires Approval"
+    },
+    "wf.stepCode": {
+      "tr": "Adım Kodu",
+      "en": "Step Code"
+    },
+    "wf.processCode": {
+      "tr": "Süreç Tipi",
+      "en": "Süreç Tipi"
+    },
+    "wf.hint": {
+      "tr": "Aktif lokasyon için INBOUND/OUTBOUND süreç adımları otomatik yüklenir. Değişiklikler audit log'a yazılır.",
+      "en": "Step configs are per-location. Known steps: RECEIVING, QC, SERIAL NO, LOT/BATCH, CUSTOMS, LABELING, PACKING, COUNTING, SHIPPING, BILLING."
+    },
+    "approval.title": {
+      "tr": "Onay Kuyruğu",
+      "en": "Onay Kuyruğu"
+    },
+    "approval.subtitle": {
+      "tr": "Onay gerektiren süreç adımları (İş İsteri 3)",
+      "en": "Onay gerektiren süreç adımları (İş İsteri 3)"
+    },
+    "approval.reference": {
+      "tr": "Referans",
+      "en": "Referans"
+    },
+    "approval.status": {
+      "tr": "Durum",
+      "en": "Durum"
+    },
+    "approval.createdAt": {
+      "tr": "Oluşturulma",
+      "en": "Oluşturulma"
+    },
+    "approval.approve": {
+      "tr": "Onayla",
+      "en": "Onayla"
+    },
+    "approval.reject": {
+      "tr": "Reddet",
+      "en": "Reddet"
+    },
+    "approval.approved": {
+      "tr": "Talep onaylandı.",
+      "en": "Talep onaylandı."
+    },
+    "approval.rejected": {
+      "tr": "Talep reddedildi.",
+      "en": "Talep reddedildi."
+    },
+    "approval.empty": {
+      "tr": "Bekleyen onay talebi yok.",
+      "en": "Bekleyen onay talebi yok."
+    },
+    "dui.title": {
+      "tr": "Dinamik Ekran Alan Yönetimi",
+      "en": "Dynamic Screen Field Management"
+    },
+    "dui.subtitle": {
+      "tr": "Alanların görünürlük / zorunluluk / salt-okunurluk kuralları (İş İsteri 5)",
+      "en": "Visibility / mandatory / read-only rules per field (Req. 5)"
+    },
+    "dui.screenCode": {
+      "tr": "Ekran Kodu",
+      "en": "Screen Code"
+    },
+    "dui.loadSchema": {
+      "tr": "Şemayı Getir",
+      "en": "Load Schema"
+    },
+    "dui.preview": {
+      "tr": "Çözümlenmiş Form Önizleme",
+      "en": "Resolved Form Preview"
+    },
+    "dui.field": {
+      "tr": "Alan",
+      "en": "Field"
+    },
+    "dui.behavior": {
+      "tr": "Davranış",
+      "en": "Behavior"
+    },
+    "dui.dataType": {
+      "tr": "Veri Tipi",
+      "en": "Data Type"
+    },
+    "dui.newRule": {
+      "tr": "Yeni Kural",
+      "en": "New Rule"
+    },
+    "dui.screenFieldId": {
+      "tr": "Alan UUID (screenFieldId)",
+      "en": "Field UUID (screenFieldId)"
+    },
+    "dui.priority": {
+      "tr": "Öncelik (boş = otomatik)",
+      "en": "Priority (empty = auto)"
+    },
+    "dui.ruleId": {
+      "tr": "Kural UUID",
+      "en": "Rule UUID"
+    },
+    "dui.ruleCreated": {
+      "tr": "Kural oluşturuldu",
+      "en": "Rule created"
+    },
+    "dui.ruleDeleted": {
+      "tr": "Kural silindi",
+      "en": "Rule deleted"
+    },
+    "int.title": {
+      "tr": "ERP Entegrasyon İzleme",
+      "en": "ERP Integration Monitor"
+    },
+    "int.subtitle": {
+      "tr": "Başarılı/hatalı kayıtlar, payload detayları ve tekrar deneme (İş İsteri 4)",
+      "en": "Success/failure records, payload details and retries (Req. 4)"
+    },
+    "int.last24h": {
+      "tr": "Son 24 Saat",
+      "en": "Last 24 Hours"
+    },
+    "int.job": {
+      "tr": "İş / Job",
+      "en": "Job"
+    },
+    "int.erp": {
+      "tr": "ERP Sistemi",
+      "en": "ERP System"
+    },
+    "int.reference": {
+      "tr": "Referans",
+      "en": "Reference"
+    },
+    "int.error": {
+      "tr": "Hata Mesajı",
+      "en": "Error Message"
+    },
+    "int.retry": {
+      "tr": "Yeniden Dene",
+      "en": "Retry"
+    },
+    "int.retryScheduled": {
+      "tr": "Yeniden deneme kuyruğa alındı",
+      "en": "Retry scheduled"
+    },
+    "int.requestPayload": {
+      "tr": "İstek Payload",
+      "en": "Request Payload"
+    },
+    "int.responsePayload": {
+      "tr": "Yanıt Payload",
+      "en": "Response Payload"
+    },
+    "int.filterStatus": {
+      "tr": "Durum Filtresi",
+      "en": "Status Filter"
+    },
+    "fx.title": {
+      "tr": "Döviz Kuru Yönetimi",
+      "en": "Exchange Rate Management"
+    },
+    "fx.subtitle": {
+      "tr": "Kur sorgulama, manuel kur girişi ve kaynak izleme (İş İsteri 8)",
+      "en": "Rate lookup, manual entry and source tracking (Req. 8)"
+    },
+    "fx.lookup": {
+      "tr": "Kur Sorgula",
+      "en": "Lookup Rate"
+    },
+    "fx.source": {
+      "tr": "Kaynak Para Birimi",
+      "en": "Source Currency"
+    },
+    "fx.target": {
+      "tr": "Hedef Para Birimi",
+      "en": "Target Currency"
+    },
+    "fx.rateType": {
+      "tr": "Kur Tipi",
+      "en": "Rate Type"
+    },
+    "fx.rate": {
+      "tr": "Kur",
+      "en": "Rate"
+    },
+    "fx.rateSource": {
+      "tr": "Kur Kaynağı",
+      "en": "Rate Source"
+    },
+    "fx.fallback": {
+      "tr": "Fallback kur kullanıldı — işlem tarihinde birebir kur bulunamadı",
+      "en": "Fallback rate used — no exact rate found for the transaction date"
+    },
+    "fx.manualEntry": {
+      "tr": "Manuel Kur Girişi",
+      "en": "Manual Rate Entry"
+    },
+    "fx.previousRate": {
+      "tr": "Önceki Kur",
+      "en": "Previous Rate"
+    },
+    "fx.saved": {
+      "tr": "Kur kaydedildi",
+      "en": "Rate saved"
+    },
+    "fx.activeRates": {
+      "tr": "Aktif Kurlar",
+      "en": "Active Rates"
+    },
+    "fx.refreshRates": {
+      "tr": "Kurları Yenile",
+      "en": "Refresh Rates"
+    },
+    "fx.lastSync": {
+      "tr": "Son TCMB senkronizasyonu",
+      "en": "Last TCMB sync"
+    },
+    "fx.syncSuccess": {
+      "tr": "TCMB kurları güncellendi",
+      "en": "TCMB rates updated"
+    },
+    "fx.syncFailed": {
+      "tr": "TCMB senkronizasyonu başarısız",
+      "en": "TCMB sync failed"
+    },
+    "fx.loadingRates": {
+      "tr": "Kurlar yükleniyor…",
+      "en": "Loading rates…"
+    },
+    "bill.title": {
+      "tr": "Çoklu Para Birimi Faturalama",
+      "en": "Multi-Currency Billing"
+    },
+    "bill.subtitle": {
+      "tr": "Sipariş, sözleşme ve finansal işlem — para birimi kontrolleriyle (İş İsterleri 8-9)",
+      "en": "Orders, contracts and financial transactions with currency guards (Reqs. 8-9)"
+    },
+    "bill.newOrder": {
+      "tr": "Yeni Sipariş",
+      "en": "New Order"
+    },
+    "bill.customerId": {
+      "tr": "Müşteri ID",
+      "en": "Customer ID"
+    },
+    "bill.currencyId": {
+      "tr": "Para Birimi ID",
+      "en": "Currency ID"
+    },
+    "bill.contractId": {
+      "tr": "Sözleşme ID (ops.)",
+      "en": "Contract ID (opt.)"
+    },
+    "bill.amount": {
+      "tr": "Tutar",
+      "en": "Amount"
+    },
+    "bill.orderCreated": {
+      "tr": "Sipariş oluşturuldu",
+      "en": "Order created"
+    },
+    "bill.currencyRejected": {
+      "tr": "Para birimi reddedildi — müşteri için izin verilen para birimlerini kontrol edin",
+      "en": "Currency rejected — check the customer's allowed currencies"
+    },
+    "bill.newContract": {
+      "tr": "Yeni Sözleşme",
+      "en": "New Contract"
+    },
+    "bill.contractCode": {
+      "tr": "Sözleşme Kodu",
+      "en": "Contract Code"
+    },
+    "bill.newTxn": {
+      "tr": "Finansal İşlem Kaydı",
+      "en": "Record Financial Transaction"
+    },
+    "bill.txnResult": {
+      "tr": "Dönüşüm Sonucu",
+      "en": "Conversion Result"
+    },
+    "bill.originalAmount": {
+      "tr": "Orijinal Tutar",
+      "en": "Original Amount"
+    },
+    "bill.convertedAmount": {
+      "tr": "Muhasebe P.B. Karşılığı",
+      "en": "Base Currency Equivalent"
+    },
+    "bill.exchangeRate": {
+      "tr": "Uygulanan Kur",
+      "en": "Applied Rate"
+    },
+    "bill.subtotal": {
+      "tr": "Ara Toplam",
+      "en": "Subtotal"
+    },
+    "bill.tax": {
+      "tr": "Vergi",
+      "en": "Tax"
+    },
+    "bill.grandTotal": {
+      "tr": "Genel Toplam",
+      "en": "Grand Total"
+    },
+    "bill.infoBanner": {
+      "tr": "Fatura para birimi / işlem para birimi / muhasebe para birimi ayrımı backend'de uygulanır. Faturalar sekmesi billing-service; sipariş/sözleşme/işlem finance-service üzerinden çalışır.",
+      "en": "Invoice, transaction and accounting currency separation is enforced by the backend. Invoices use billing-service; orders/contracts/transactions use finance-service."
+    },
+    "bill.tab.invoices": {
+      "tr": "Faturalar",
+      "en": "Invoices"
+    },
+    "bill.tab.finance": {
+      "tr": "Sipariş / Sözleşme / İşlem",
+      "en": "Order / Contract / Transaction"
+    },
+    "bill.invoice.title": {
+      "tr": "Faturalar",
+      "en": "Invoices"
+    },
+    "bill.invoice.new": {
+      "tr": "Yeni Fatura",
+      "en": "New Invoice"
+    },
+    "bill.invoice.calculate": {
+      "tr": "Hesapla (Önizle)",
+      "en": "Calculate (Preview)"
+    },
+    "bill.invoice.save": {
+      "tr": "Kaydet (Taslak)",
+      "en": "Save (Draft)"
+    },
+    "bill.invoice.preview": {
+      "tr": "Hesaplama Önizlemesi",
+      "en": "Calculation Preview"
+    },
+    "bill.invoice.approve": {
+      "tr": "Onayla",
+      "en": "Approve"
+    },
+    "bill.invoice.cancel": {
+      "tr": "İptal",
+      "en": "Cancel"
+    },
+    "bill.invoice.approved": {
+      "tr": "Fatura onaylandı",
+      "en": "Invoice approved"
+    },
+    "bill.invoice.cancelled": {
+      "tr": "Fatura iptal edildi",
+      "en": "Invoice cancelled"
+    },
+    "bill.invoice.saved": {
+      "tr": "Fatura taslak olarak kaydedildi",
+      "en": "Invoice saved as draft"
+    },
+    "bill.invoice.exchangeDiff": {
+      "tr": "Kur Farkı Kaydet",
+      "en": "Record Exchange Diff."
+    },
+    "bill.invoice.exchangeDiffSaved": {
+      "tr": "Kur farkı kaydedildi",
+      "en": "Exchange difference recorded"
+    },
+    "bill.invoice.currency": {
+      "tr": "Fatura Para Birimi",
+      "en": "Invoice Currency"
+    },
+    "bill.invoice.rateDate": {
+      "tr": "Kur Tarihi",
+      "en": "Rate Date"
+    },
+    "bill.invoice.lines": {
+      "tr": "Satır Kalemleri",
+      "en": "Line Items"
+    },
+    "bill.invoice.lineDescription": {
+      "tr": "Açıklama",
+      "en": "Description"
+    },
+    "bill.invoice.quantity": {
+      "tr": "Miktar",
+      "en": "Quantity"
+    },
+    "bill.invoice.unitPrice": {
+      "tr": "Birim Fiyat",
+      "en": "Unit Price"
+    },
+    "bill.invoice.discount": {
+      "tr": "İskonto",
+      "en": "Discount"
+    },
+    "bill.invoice.taxRate": {
+      "tr": "Vergi %",
+      "en": "Tax %"
+    },
+    "bill.invoice.addLine": {
+      "tr": "Satır Ekle",
+      "en": "Add Line"
+    },
+    "bill.invoice.list": {
+      "tr": "Fatura Listesi",
+      "en": "Invoice List"
+    },
+    "bill.invoice.filterStatus": {
+      "tr": "Durum Filtresi",
+      "en": "Status Filter"
+    },
+    "bill.invoice.empty": {
+      "tr": "Fatura bulunamadı.",
+      "en": "No invoices found."
+    },
+    "bill.invoice.number": {
+      "tr": "Fatura No",
+      "en": "Invoice No"
+    },
+    "bill.invoice.paidAmount": {
+      "tr": "Ödenen Tutar",
+      "en": "Paid Amount"
+    },
+    "bill.invoice.paymentRate": {
+      "tr": "Ödeme Kuru",
+      "en": "Payment Rate"
+    },
+    "bill.invoice.tenantRequired": {
+      "tr": "Fatura işlemleri için üst menüden aktif firma ve lokasyon seçin.",
+      "en": "Select an active company and location from the top menu for invoice operations."
+    },
+    "bill.invoice.rateLocked": {
+      "tr": "Onaylanmış faturanın kur bilgisi değiştirilemez",
+      "en": "Exchange rate cannot be changed on an approved invoice"
+    },
+    "bill.invoice.rateNotFound": {
+      "tr": "Kur bulunamadı",
+      "en": "Exchange rate not found"
+    },
+    "bill.invoice.status.DRAFT": {
+      "tr": "Taslak",
+      "en": "Draft"
+    },
+    "bill.invoice.status.APPROVED": {
+      "tr": "Onaylı",
+      "en": "Approved"
+    },
+    "bill.invoice.status.CANCELLED": {
+      "tr": "İptal",
+      "en": "Cancelled"
+    },
+    "bill.invoice.status.SENT_TO_ERP": {
+      "tr": "ERP'ye Gönderildi",
+      "en": "Sent to ERP"
+    },
+    "common.all": {
+      "tr": "Tümü",
+      "en": "All"
+    },
+    "common.optional": {
+      "tr": "opsiyonel",
+      "en": "optional"
+    },
+    "addr.title": {
+      "tr": "Adres Yönetimi",
+      "en": "Address Management"
+    },
+    "addr.subtitle": {
+      "tr": "Ülkeye göre dinamik adres alanları ve hiyerarşik master data (İş İsteri 10)",
+      "en": "Country-driven dynamic address fields & hierarchical master data (Req. 10)"
+    },
+    "addr.country": {
+      "tr": "Ülke",
+      "en": "Country"
+    },
+    "addr.state": {
+      "tr": "Eyalet / Bölge",
+      "en": "State / Region"
+    },
+    "addr.city": {
+      "tr": "İl / Şehir",
+      "en": "City"
+    },
+    "addr.district": {
+      "tr": "İlçe",
+      "en": "District"
+    },
+    "addr.neighborhood": {
+      "tr": "Mahalle",
+      "en": "Neighborhood"
+    },
+    "addr.zip": {
+      "tr": "Posta Kodu",
+      "en": "ZIP / Postal Code"
+    },
+    "addr.street": {
+      "tr": "Cadde / Sokak",
+      "en": "Street"
+    },
+    "addr.line1": {
+      "tr": "Adres Satırı",
+      "en": "Address Line"
+    },
+    "addr.save": {
+      "tr": "Adresi Kaydet",
+      "en": "Save Address"
+    },
+    "addr.update": {
+      "tr": "Adresi Güncelle",
+      "en": "Adresi Güncelle"
+    },
+    "addr.new": {
+      "tr": "Yeni Adres",
+      "en": "Yeni Adres"
+    },
+    "addr.saved": {
+      "tr": "Adres kaydedildi",
+      "en": "Address saved"
+    },
+    "addr.updated": {
+      "tr": "Adres güncellendi",
+      "en": "Adres güncellendi"
+    },
+    "addr.formatted": {
+      "tr": "Biçimlendirilmiş Adres",
+      "en": "Formatted Address"
+    },
+    "tax.title": {
+      "tr": "Vergi Yönetimi",
+      "en": "Tax Management"
+    },
+    "tax.subtitle": {
+      "tr": "Parametrik oranlar, tarih versiyonlama ve hesaplama simülatörü (İş İsteri 11)",
+      "en": "Parametric rates, date versioning and calculation simulator (Req. 11)"
+    },
+    "tax.rateId": {
+      "tr": "Vergi Oranı UUID",
+      "en": "Tax Rate UUID"
+    },
+    "tax.newRate": {
+      "tr": "Yeni Oran (%)",
+      "en": "New Rate (%)"
+    },
+    "tax.effectiveDate": {
+      "tr": "Geçerlilik Tarihi",
+      "en": "Effective Date"
+    },
+    "tax.updateVersioned": {
+      "tr": "Versiyonlu Güncelle",
+      "en": "Versioned Update"
+    },
+    "tax.expired": {
+      "tr": "Kapatılan Versiyon",
+      "en": "Expired Version"
+    },
+    "tax.created": {
+      "tr": "Yeni Versiyon",
+      "en": "New Version"
+    },
+    "tax.simulator": {
+      "tr": "Vergi Hesaplama Simülatörü",
+      "en": "Tax Calculation Simulator"
+    },
+    "tax.baseAmount": {
+      "tr": "Matrah",
+      "en": "Base Amount"
+    },
+    "tax.ratePct": {
+      "tr": "Vergi Oranı (%)",
+      "en": "Tax Rate (%)"
+    },
+    "tax.inclusive": {
+      "tr": "Vergi Dahil",
+      "en": "Tax Inclusive"
+    },
+    "tax.exclusive": {
+      "tr": "Vergi Hariç",
+      "en": "Tax Exclusive"
+    },
+    "tax.taxAmount": {
+      "tr": "Vergi Tutarı",
+      "en": "Tax Amount"
+    },
+    "tax.gross": {
+      "tr": "Brüt (Vergili)",
+      "en": "Gross (incl. tax)"
+    },
+    "tax.net": {
+      "tr": "Net (Vergisiz)",
+      "en": "Net (excl. tax)"
+    },
+    "tax.ratesTable": {
+      "tr": "Aktif Vergi Oranları",
+      "en": "Aktif Vergi Oranları"
+    },
+    "tax.calculate": {
+      "tr": "Hesapla",
+      "en": "Hesapla"
+    },
+    "audit.title": {
+      "tr": "Audit Log",
+      "en": "Audit Log"
+    },
+    "audit.subtitle": {
+      "tr": "Parametre, kur ve konfigürasyon değişim izleri (İş İsteri 12)",
+      "en": "Parameter, rate and configuration change trail (Req. 12)"
+    },
+    "login.title": {
+      "tr": "WMS PRO",
+      "en": "WMS PRO"
+    },
+    "login.subtitle": {
+      "tr": "Depo Yönetim Sistemi",
+      "en": "Warehouse Management System"
+    },
+    "login.username": {
+      "tr": "Kullanıcı Adı",
+      "en": "Username"
+    },
+    "login.password": {
+      "tr": "Şifre",
+      "en": "Password"
+    },
+    "login.submit": {
+      "tr": "Giriş Yap",
+      "en": "Sign In"
+    },
+    "login.error": {
+      "tr": "Kullanıcı adı veya şifre hatalı",
+      "en": "Invalid username or password"
+    },
+    "login.demoHint": {
+      "tr": "Demo: demo.user / demo",
+      "en": "Demo: demo.user / demo"
+    },
+    "nav.users": {
+      "tr": "Kullanıcı Yönetimi",
+      "en": "User Management"
+    },
+    "user.title": {
+      "tr": "Kullanıcı Yönetimi",
+      "en": "User Management"
+    },
+    "user.subtitle": {
+      "tr": "Yalnızca admin kullanıcı ekleyebilir — self-registration kapalı",
+      "en": "Only admins can add users — self-registration is disabled"
+    },
+    "user.username": {
+      "tr": "Kullanıcı Adı",
+      "en": "Username"
+    },
+    "user.email": {
+      "tr": "E-posta",
+      "en": "Email"
+    },
+    "user.password": {
+      "tr": "Şifre",
+      "en": "Password"
+    },
+    "user.firstName": {
+      "tr": "Ad",
+      "en": "First Name"
+    },
+    "user.lastName": {
+      "tr": "Soyad",
+      "en": "Last Name"
+    },
+    "user.keycloakRoles": {
+      "tr": "Sistem Rolleri",
+      "en": "System Roles"
+    },
+    "user.company": {
+      "tr": "Şirket",
+      "en": "Company"
+    },
+    "user.location": {
+      "tr": "Lokasyon",
+      "en": "Location"
+    },
+    "user.role": {
+      "tr": "WMS Rolü",
+      "en": "WMS Role"
+    },
+    "user.addNew": {
+      "tr": "Yeni Kullanıcı Ekle",
+      "en": "Add New User"
+    },
+    "user.created": {
+      "tr": "Kullanıcı oluşturuldu",
+      "en": "User created"
+    },
+    "user.deactivated": {
+      "tr": "Kullanıcı devre dışı bırakıldı",
+      "en": "User deactivated"
+    },
+    "user.allLocations": {
+      "tr": "Tüm lokasyonlar",
+      "en": "All locations"
+    },
+    "lang.autoTranslate": {
+      "tr": "Yeni dil eklendiğinde çeviriler otomatik oluşturulur",
+      "en": "Translations are auto-generated when a new language is added"
+    },
+    "lang.retranslate": {
+      "tr": "Otomatik Çevir",
+      "en": "Auto-Translate"
+    },
+    "lang.retranslateDone": {
+      "tr": "Çeviri tamamlandı: {count} anahtar",
+      "en": "Translation completed: {count} keys"
+    },
+    "lang.retranslateProgress": {
+      "tr": "Çeviri: {count}/{expected} anahtar",
+      "en": "Translation: {count}/{expected} keys"
+    },
+    "lang.retranslateStarted": {
+      "tr": "Otomatik çeviri başlatıldı — arka planda devam ediyor",
+      "en": "Auto-translate started — running in background"
+    },
+    "lang.codeHint": {
+      "tr": "Dil kodu 2 harfli ISO kodu olmalıdır (Rusça: ru, Almanca: de). rs Sırpça içindir.",
+      "en": "Language code must be a 2-letter ISO code (Russian: ru, German: de). rs is Serbian."
+    },
+    "lang.autoTranslateProgress": {
+      "tr": "çeviri arka planda devam ediyor",
+      "en": "translation running in background"
+    },
+    "lang.keys": {
+      "tr": "anahtar",
+      "en": "keys"
+    },
+    "common.buttons.save": {
+      "tr": "Kaydet",
+      "en": "Save"
+    },
+    "common.buttons.cancel": {
+      "tr": "İptal",
+      "en": "Cancel"
+    },
+    "button.save": {
+      "tr": "Kaydet",
+      "en": "Save"
+    },
+    "label.username": {
+      "tr": "Kullanıcı Adı",
+      "en": "Username"
+    },
+    "error.unauthorized": {
+      "tr": "Yetkisiz erişim",
+      "en": "Unauthorized access"
+    },
+    "errors.stock.not_found": {
+      "tr": "Stok bulunamadı",
+      "en": "Stock not found"
+    },
+    "validation.required": {
+      "tr": "Bu alan zorunludur",
+      "en": "This field is required"
+    },
+    "validation.invalidFormat": {
+      "tr": "Geçersiz format",
+      "en": "Invalid format"
+    },
+    "common.readOnly": {
+      "tr": "SADECE OKU",
+      "en": "READ-ONLY"
+    },
+    "common.go": {
+      "tr": "Git",
+      "en": "Go"
+    },
+    "common.tenant": {
+      "tr": "Aktif Tenant",
+      "en": "Active Tenant"
+    },
+    "common.locationLabel": {
+      "tr": "Lokasyon",
+      "en": "Location"
+    },
+    "layout.forbiddenTitle": {
+      "tr": "Yetkisiz Lokasyon Erişimi",
+      "en": "Unauthorized Location Access"
+    },
+    "layout.forbiddenBody": {
+      "tr": "Seçili lokasyon için bu işlemi yapmaya yetkiniz yok.",
+      "en": "You are not authorized to perform this action for the selected location."
+    },
+    "layout.forbiddenClose": {
+      "tr": "Kapat ve Devam Et",
+      "en": "Close and Continue"
+    },
+    "layout.offlineDemo": {
+      "tr": "Offline Demo Mode",
+      "en": "Offline Demo Mode"
+    },
+    "app.loading": {
+      "tr": "Yükleniyor...",
+      "en": "Loading..."
+    },
+    "app.tenantLoading": {
+      "tr": "Tenant yükleniyor...",
+      "en": "Loading tenant..."
+    },
+    "field.tax_number.label": {
+      "tr": "Vergi Numarası",
+      "en": "Tax Number"
+    },
+    "field.district.label": {
+      "tr": "İlçe",
+      "en": "District"
+    },
+    "field.zip_code.label": {
+      "tr": "Posta Kodu",
+      "en": "ZIP Code"
+    },
+    "field.batch_no.label": {
+      "tr": "Parti Numarası",
+      "en": "Batch Number"
+    },
+    "validation.tax_number.required": {
+      "tr": "Vergi numarası zorunludur",
+      "en": "Tax number is required"
+    },
+    "validation.tax_number.invalid": {
+      "tr": "Geçersiz vergi numarası formatı",
+      "en": "Invalid tax number format"
+    },
+    "screen.REC_CONTROL_FORM.name": {
+      "tr": "Mal Kabul Kontrol Formu",
+      "en": "Inbound Control Form"
+    },
+    "screen.MAT_CARD_FORM.name": {
+      "tr": "Malzeme Kartı Formu",
+      "en": "Material Card Form"
+    },
+    "lang.added": {
+      "tr": "{name} ({code}) eklendi",
+      "en": "{name} ({code}) added"
+    },
+    "lang.addedAutoTranslate": {
+      "tr": "{name} ({code}) eklendi — çeviriler otomatik oluşturulur",
+      "en": "{name} ({code}) added — translations are auto-generated"
+    },
+    "lang.translateProgress": {
+      "tr": "çeviri: {count}/{expected} anahtar",
+      "en": "translation: {count}/{expected} keys"
+    },
+    "lang.translateComplete": {
+      "tr": "çeviri tamamlandı ({count} anahtar)",
+      "en": "translation complete ({count} keys)"
+    },
+    "lang.importNeedCode": {
+      "tr": "Önce hedef dil kodunu girin (örn. de).",
+      "en": "Enter target language code first (e.g. de)."
+    },
+    "lang.importDone": {
+      "tr": "Import tamamlandı",
+      "en": "Import completed"
+    },
+    "lang.missingTitle": {
+      "tr": "Eksik Çeviriler",
+      "en": "Missing Translations"
+    },
+    "lang.missingCount": {
+      "tr": "Çözülmemiş eksik anahtar",
+      "en": "Unresolved missing keys"
+    },
+    "lang.sourceLanguage": {
+      "tr": "Kaynak Dil",
+      "en": "Source Language"
+    },
+    "lang.sourceAuto": {
+      "tr": "Otomatik (en dolu kaynak)",
+      "en": "Automatic (best coverage)"
+    },
+    "ops.dash.welcome": {
+      "tr": "WMS Kontrol Paneline Hoş Geldiniz",
+      "en": "Welcome to WMS Control Panel"
+    },
+    "ops.dash.simulate403": {
+      "tr": "403 Tenant Blokajını Simüle Et",
+      "en": "Simulate 403 Tenant Block"
+    },
+    "ops.dash.kpi.occupancy": {
+      "tr": "Depo Doluluk Oranı",
+      "en": "Warehouse Occupancy Rate"
+    },
+    "ops.dash.kpi.occupancySub": {
+      "tr": "Hacim Bazlı Kalan: 316 m³",
+      "en": "Volume Remaining: 316 m³"
+    },
+    "ops.dash.kpi.inbound": {
+      "tr": "Bekleyen Inbound Mal Kabul",
+      "en": "Pending Inbound Receipts"
+    },
+    "ops.dash.kpi.inboundVal": {
+      "tr": "14 Sipariş",
+      "en": "14 Orders"
+    },
+    "ops.dash.kpi.inboundSub": {
+      "tr": "8 QC Onayı Bekliyor",
+      "en": "8 Awaiting QC Approval"
+    },
+    "ops.dash.kpi.picking": {
+      "tr": "Aktif Toplama Görevleri",
+      "en": "Active Picking Tasks"
+    },
+    "ops.dash.kpi.pickingVal": {
+      "tr": "6 Liste",
+      "en": "6 Lists"
+    },
+    "ops.dash.kpi.pickingSub": {
+      "tr": "45 SKU Toplanıyor",
+      "en": "45 SKUs Being Picked"
+    },
+    "ops.dash.kpi.blocked": {
+      "tr": "Bloke Depo Gözleri",
+      "en": "Blocked Storage Bins"
+    },
+    "ops.dash.kpi.blockedVal": {
+      "tr": "3 Göz",
+      "en": "3 Bins"
+    },
+    "ops.dash.kpi.blockedSub": {
+      "tr": "Kalite Kontrol / Hasar Bloke",
+      "en": "QC / Damage Block"
+    },
+    "ops.dash.quickOps": {
+      "tr": "Hızlı Operasyon Adımları",
+      "en": "Quick Operation Steps"
+    },
+    "ops.dash.rackTitle": {
+      "tr": "Raf Hiyerarşisi (2D)",
+      "en": "Rack Hierarchy (2D)"
+    },
+    "ops.dash.rackDesc": {
+      "tr": "Koridor, raf ve göz doluluk takibi ve detay izleme",
+      "en": "Aisle, rack and bin occupancy tracking"
+    },
+    "ops.dash.inboundTitle": {
+      "tr": "Mal Kabul & QC",
+      "en": "Inbound & QC"
+    },
+    "ops.dash.inboundDesc": {
+      "tr": "PO listeleri, QC onayları ve Directed Putaway önerileri",
+      "en": "PO lists, QC approvals and directed putaway"
+    },
+    "ops.dash.transferTitle": {
+      "tr": "Stok Transferi",
+      "en": "Stock Transfer"
+    },
+    "ops.dash.transferDesc": {
+      "tr": "Gözler arası drag-drop veya kontrollü envanter transferleri",
+      "en": "Drag-drop or controlled inventory transfers"
+    },
+    "ops.dash.pickingTitle": {
+      "tr": "Sipariş Hazırlama",
+      "en": "Order Picking"
+    },
+    "ops.dash.pickingDesc": {
+      "tr": "Toplama listeleri ve optimize Aisle-Bay rotalaması",
+      "en": "Pick lists and optimized aisle-bay routing"
+    },
+    "ops.dash.systemLog": {
+      "tr": "Sistem Akış Günlüğü",
+      "en": "System Activity Log"
+    },
+    "ops.dash.alert1": {
+      "tr": "Göz A-04-02-01 (Karantina) aşırı ağırlık limitine yaklaştı (%92)",
+      "en": "Bin A-04-02-01 (Quarantine) approaching weight limit (92%)"
+    },
+    "ops.dash.alert2": {
+      "tr": "SSCC-982341201 koli sevkiyat çıkış kuyruğuna başarıyla gönderildi",
+      "en": "SSCC-982341201 carton sent to outbound queue successfully"
+    },
+    "ops.dash.alert3": {
+      "tr": "Firma yetkilendirmesi güncellendi (Keycloak token yenilendi)",
+      "en": "Company authorization updated (Keycloak token refreshed)"
+    },
+    "ops.dash.time5m": {
+      "tr": "5 dk önce",
+      "en": "5 min ago"
+    },
+    "ops.dash.time12m": {
+      "tr": "12 dk önce",
+      "en": "12 min ago"
+    },
+    "ops.dash.time30m": {
+      "tr": "30 dk önce",
+      "en": "30 min ago"
+    },
+    "ops.dash.activeWorkers": {
+      "tr": "Aktif Depo Personeli",
+      "en": "Active Warehouse Staff"
+    },
+    "ops.dash.noOperators": {
+      "tr": "Aktif operatör yok",
+      "en": "No active operators"
+    },
+    "ops.rack.legendActive": {
+      "tr": "Aktif / Dolu",
+      "en": "Active / Occupied"
+    },
+    "ops.rack.legendBlocked": {
+      "tr": "Bloke / Karantina",
+      "en": "Blocked / Quarantine"
+    },
+    "ops.rack.legendEmpty": {
+      "tr": "Boş",
+      "en": "Empty"
+    },
+    "ops.rack.legendFull": {
+      "tr": "Dolu",
+      "en": "Full"
+    },
+    "ops.rack.highlightClear": {
+      "tr": "Vurguyu Temizle",
+      "en": "Clear Highlight"
+    },
+    "ops.rack.storageAddress": {
+      "tr": "Depo Adresi",
+      "en": "Storage Address"
+    },
+    "ops.rack.volume": {
+      "tr": "Hacim Doluluğu",
+      "en": "Volume Occupancy"
+    },
+    "ops.rack.weight": {
+      "tr": "Ağırlık Doluluğu",
+      "en": "Weight Occupancy"
+    },
+    "ops.rack.contents": {
+      "tr": "İçerik (SKU)",
+      "en": "Contents (SKU)"
+    },
+    "ops.rack.noContents": {
+      "tr": "Bu gözde stok bulunmuyor",
+      "en": "No stock in this bin"
+    },
+    "ops.rack.unblock": {
+      "tr": "Blokeyi Kaldır",
+      "en": "Remove Block"
+    },
+    "ops.rack.block": {
+      "tr": "Gözü Bloke Et",
+      "en": "Block Bin"
+    },
+    "ops.inbound.title": {
+      "tr": "Gelen Fişler & Mal Kabul",
+      "en": "Inbound Receipts"
+    },
+    "ops.inbound.selectReceipt": {
+      "tr": "Lütfen işlem yapmak istediğiniz mal kabul fişini soldaki listeden seçin.",
+      "en": "Select an inbound receipt from the list on the left."
+    },
+    "ops.transfer.title": {
+      "tr": "Depo İçi Lokasyon Transferi",
+      "en": "Internal Location Transfer"
+    },
+    "ops.transfer.search": {
+      "tr": "SKU, Ürün Adı veya Depo Gözü ile arayın...",
+      "en": "Search by SKU, product name or bin..."
+    },
+    "ops.transfer.execute": {
+      "tr": "Transferi Gerçekleştir",
+      "en": "Execute Transfer"
+    },
+    "ops.transfer.err.sameBin": {
+      "tr": "Kaynak ve hedef depo adresleri aynı olamaz!",
+      "en": "Source and target addresses cannot be the same!"
+    },
+    "ops.transfer.err.fillAll": {
+      "tr": "Lütfen tüm alanları doğru şekilde doldurun.",
+      "en": "Please fill all fields correctly."
+    },
+    "ops.transfer.err.qty": {
+      "tr": "Transfer miktarı stok miktarından fazla olamaz!",
+      "en": "Transfer quantity cannot exceed stock quantity!"
+    },
+    "ops.transfer.err.volume": {
+      "tr": "HATA: Hedef bin hacim kapasitesini aşıyor!",
+      "en": "ERROR: Exceeds target bin volume capacity!"
+    },
+    "ops.transfer.err.weight": {
+      "tr": "HATA: Hedef bin ağırlık kapasitesini aşıyor!",
+      "en": "ERROR: Exceeds target bin weight capacity!"
+    },
+    "ops.transfer.err.blocked": {
+      "tr": "HATA: Hedef depo gözü bloke edilmiştir.",
+      "en": "ERROR: Target bin is blocked."
+    },
+    "ops.transfer.success": {
+      "tr": "Transfer başarılı: {qty} adet {sku} taşındı",
+      "en": "Transfer successful: {qty} x {sku} moved"
+    },
+    "ops.transfer.inventoryTitle": {
+      "tr": "Mevcut Envanter (On-Hand)",
+      "en": "Current Inventory (On-Hand)"
+    },
+    "ops.transfer.dragHint": {
+      "tr": "Satırları sürükleyip sağdaki hedefe bırakabilirsiniz",
+      "en": "Drag rows and drop them onto the target on the right"
+    },
+    "ops.transfer.move": {
+      "tr": "Taşı",
+      "en": "Move"
+    },
+    "ops.transfer.productName": {
+      "tr": "Ürün Adı",
+      "en": "Product Name"
+    },
+    "ops.transfer.lotNo": {
+      "tr": "Lot No",
+      "en": "Lot No"
+    },
+    "ops.transfer.currentBin": {
+      "tr": "Bulunduğu Göz",
+      "en": "Current Bin"
+    },
+    "ops.transfer.dragRowTitle": {
+      "tr": "Bu satırı sürükleyip transfer hedefine bırakabilirsiniz",
+      "en": "Drag this row and drop it on the transfer target"
+    },
+    "ops.transfer.noStock": {
+      "tr": "Aranan kriterlerde stok bulunamadı.",
+      "en": "No stock found for the search criteria."
+    },
+    "ops.transfer.sourceLabel": {
+      "tr": "Kaynak Ürün & Adres (Sürükle veya Seç)",
+      "en": "Source Product & Address (Drag or Select)"
+    },
+    "ops.transfer.sourcePlaceholder": {
+      "tr": "-- Ürün & Bulunduğu Göz Seçin --",
+      "en": "-- Select Product & Bin --"
+    },
+    "ops.transfer.sourceOption": {
+      "tr": "{sku} (Lot: {lot}) @ {bin} - {qty} Adet",
+      "en": "{sku} (Lot: {lot}) @ {bin} - {qty} pcs"
+    },
+    "ops.transfer.targetBin": {
+      "tr": "Hedef Depo Gözü",
+      "en": "Target Warehouse Bin"
+    },
+    "ops.transfer.targetPlaceholder": {
+      "tr": "-- Hedef Göz Adresi --",
+      "en": "-- Target Bin Address --"
+    },
+    "ops.transfer.statusBlocked": {
+      "tr": "BLOKE",
+      "en": "BLOCKED"
+    },
+    "ops.transfer.statusFull": {
+      "tr": "DOLU",
+      "en": "FULL"
+    },
+    "ops.transfer.statusActive": {
+      "tr": "AKTİF",
+      "en": "ACTIVE"
+    },
+    "ops.transfer.qtyLabel": {
+      "tr": "Transfer Edilecek Miktar",
+      "en": "Quantity to Transfer"
+    },
+    "ops.transfer.qtyPlaceholder": {
+      "tr": "Miktar girin",
+      "en": "Enter quantity"
+    },
+    "ops.transfer.qtyMax": {
+      "tr": "Maks: {qty}",
+      "en": "Max: {qty}"
+    },
+    "ops.transfer.capacityTitle": {
+      "tr": "Hedef Kapasite Durum Kontrolü",
+      "en": "Target Capacity Check"
+    },
+    "ops.transfer.dragDropAlert": {
+      "tr": "Bırakmak istediğiniz hedef depo gözünü seçip üzerine bırakın!",
+      "en": "Select the target bin and drop here!"
+    },
+    "ops.transfer.binAddress": {
+      "tr": "Göz Adresi: {code}",
+      "en": "Bin Address: {code}"
+    },
+    "ops.transfer.volumeProjected": {
+      "tr": "Hacim Doluluğu (Projected)",
+      "en": "Volume Occupancy (Projected)"
+    },
+    "ops.transfer.weightProjected": {
+      "tr": "Ağırlık Doluluğu (Projected)",
+      "en": "Weight Occupancy (Projected)"
+    },
+    "ops.transfer.capacityOverload": {
+      "tr": "Kapasite Limit Aşımı!",
+      "en": "Capacity Limit Exceeded!"
+    },
+    "ops.transfer.capacityOverloadDesc": {
+      "tr": "Taşınan miktar hedef göz limitlerini aşmaktadır. Transfer bloke edildi.",
+      "en": "The transferred quantity exceeds target bin limits. Transfer blocked."
+    },
+    "ops.transfer.capacityNearLimit": {
+      "tr": "Kapasite Sınırına Yakın! (>80%)",
+      "en": "Approaching Capacity Limit! (>80%)"
+    },
+    "ops.transfer.capacityNearLimitDesc": {
+      "tr": "Yerleşim sonrası hedef raf doluluk oranı kritik düzeye ulaşacaktır.",
+      "en": "Target rack occupancy will reach a critical level after placement."
+    },
+    "ops.transfer.selectTargetBin": {
+      "tr": "Kapasite analizi ve sürükle-bırak kontrolü için lütfen bir Hedef Depo Gözü seçin.",
+      "en": "Please select a target warehouse bin for capacity analysis and drag-drop."
+    },
+    "ops.picking.unassigned": {
+      "tr": "Atanmamış görevler",
+      "en": "Unassigned tasks"
+    },
+    "ops.picking.activeLists": {
+      "tr": "Aktif Toplama İş Emri Listeleri",
+      "en": "Active Picking Work Order Lists"
+    },
+    "ops.picking.assignToMe": {
+      "tr": "Üzerime al: #{id}",
+      "en": "Assign to me: #{id}"
+    },
+    "ops.picking.date": {
+      "tr": "Tarih: {date}",
+      "en": "Date: {date}"
+    },
+    "ops.picking.progress": {
+      "tr": "İlerleme: {picked} / {total} SKU",
+      "en": "Progress: {picked} / {total} SKU"
+    },
+    "ops.picking.routeGuide": {
+      "tr": "Picking Route Guide (Rota Kılavuzu)",
+      "en": "Picking Route Guide"
+    },
+    "ops.picking.allPicked": {
+      "tr": "Tüm Ürünler Başarıyla Toplandı!",
+      "en": "All Items Picked Successfully!"
+    },
+    "ops.picking.readyForPacking": {
+      "tr": "Toplanan bu liste (#{id}) paketleme ve kolileme istasyonuna gönderilmeye hazırdır.",
+      "en": "List #{id} is ready to be sent to packing and cartonization."
+    },
+    "ops.picking.goToShipping": {
+      "tr": "Paketleme & Sevkiyat Ekranına Git",
+      "en": "Go to Packing & Shipping"
+    },
+    "ops.picking.nextAddress": {
+      "tr": "Sıradaki Rota Adresi",
+      "en": "Next Route Address"
+    },
+    "ops.picking.skuToPick": {
+      "tr": "Toplanacak SKU",
+      "en": "SKU to Pick"
+    },
+    "ops.picking.requiredQty": {
+      "tr": "Gereken Miktar:",
+      "en": "Required Quantity:"
+    },
+    "ops.picking.qtyUnit": {
+      "tr": "{qty} Adet",
+      "en": "{qty} pcs"
+    },
+    "ops.picking.confirmPick": {
+      "tr": "Toplamayı Doğrula (Pick OK)",
+      "en": "Confirm Pick"
+    },
+    "ops.picking.routeOrder": {
+      "tr": "En Kısa Rota Sıralaması (Aisle ➔ Bay ➔ Shelf)",
+      "en": "Shortest Route Order (Aisle ➔ Bay ➔ Shelf)"
+    },
+    "ops.picking.selectList": {
+      "tr": "Lütfen işlem yapmak istediğiniz toplama iş emrini seçin.",
+      "en": "Please select a picking work order to process."
+    },
+    "ops.picking.statusPending": {
+      "tr": "Bekliyor",
+      "en": "Pending"
+    },
+    "ops.picking.statusPicking": {
+      "tr": "Toplanıyor",
+      "en": "Picking"
+    },
+    "ops.picking.statusPicked": {
+      "tr": "Toplandı",
+      "en": "Picked"
+    },
+    "ops.shipping.tabPacking": {
+      "tr": "Paketleme & SSCC",
+      "en": "Packing & SSCC"
+    },
+    "ops.shipping.tabLoading": {
+      "tr": "Yükleme & Sevkiyat",
+      "en": "Loading & Shipping"
+    },
+    "ops.shipping.scanPlaceholder": {
+      "tr": "SKU veya Ürün Barkodu Okutun/Girin",
+      "en": "Scan or enter SKU barcode"
+    },
+    "ops.shipping.err.volume": {
+      "tr": "HATA: Koli hacim kapasitesini aşıyor!",
+      "en": "ERROR: Exceeds carton volume capacity!"
+    },
+    "ops.shipping.err.weight": {
+      "tr": "HATA: Koli ağırlık kapasitesini aşıyor!",
+      "en": "ERROR: Exceeds carton weight capacity!"
+    },
+    "ops.shipping.err.empty": {
+      "tr": "Boş koli için etiket üretilemez!",
+      "en": "Cannot generate label for empty carton!"
+    },
+    "ops.shipping.packingStation": {
+      "tr": "Koli Hazırlama İstasyonu",
+      "en": "Carton Preparation Station"
+    },
+    "ops.shipping.cartonContents": {
+      "tr": "Koli İçi Ürünler",
+      "en": "Items in Carton"
+    },
+    "ops.shipping.emptyCarton": {
+      "tr": "Koli henüz boş. Barkod okutarak başlayın.",
+      "en": "Carton is empty. Start by scanning a barcode."
+    },
+    "ops.shipping.resetCarton": {
+      "tr": "Koliyi Sıfırla",
+      "en": "Reset Carton"
+    },
+    "ops.shipping.closeCartonSscc": {
+      "tr": "Koliyi Kapat & SSCC Üret",
+      "en": "Close Carton & Generate SSCC"
+    },
+    "ops.shipping.capacityGauge": {
+      "tr": "Koli Kapasite Göstergesi",
+      "en": "Carton Capacity Gauge"
+    },
+    "ops.shipping.totalVolume": {
+      "tr": "Toplam Hacim",
+      "en": "Total Volume"
+    },
+    "ops.shipping.totalWeight": {
+      "tr": "Toplam Ağırlık",
+      "en": "Total Weight"
+    },
+    "ops.shipping.percentFull": {
+      "tr": "{pct}% Dolu",
+      "en": "{pct}% Full"
+    },
+    "ops.shipping.capacityAlert": {
+      "tr": "Koli maksimum taşıma kapasitesine yaklaştı. Lütfen yeni bir koli açın.",
+      "en": "Carton is approaching maximum capacity. Please open a new carton."
+    },
+    "ops.shipping.qtyUnit": {
+      "tr": "{qty} Adet",
+      "en": "{qty} pcs"
+    },
+    "fx.infoBanner": {
+      "tr": "Kur kaynakları: TCMB referans, manuel giriş, ERP entegrasyonu, banka ve sözleşme kurları. Geriye dönük işlemler işlem tarihindeki kuru kullanır; tüm kur değişimleri backend'de audit log'a yazılır.",
+      "en": "Rate sources: CBRT reference, manual entry, ERP integration, bank and contract rates. Retrospective transactions use the rate on the transaction date; all rate changes are audit-logged on the backend."
+    },
+    "fx.invalidRate": {
+      "tr": "Geçerli bir kur değeri girin.",
+      "en": "Enter a valid exchange rate."
+    },
+    "fx.pair": {
+      "tr": "Parite",
+      "en": "Pair"
+    },
+    "dui.priorityHint": {
+      "tr": "Öncelik boşsa backend otomatik hesaplar: Lokasyon=50, Rol=40, Şirket=30, Ülke=20, Global=10. Çakışmada yüksek öncelik kazanır.",
+      "en": "If priority is empty, the backend calculates automatically: Location=50, Role=40, Company=30, Country=20, Global=10. Higher priority wins on conflict."
+    },
+    "dui.schemaHint": {
+      "tr": "Ekran kodu girip şemayı yükleyin. Kurallar lokasyon/rol/ülke önceliğine göre backend'de çözümlenir.",
+      "en": "Enter a screen code and load the schema. Rules are resolved on the backend by location/role/country priority."
+    },
+    "dui.liveForm": {
+      "tr": "Canlı Form",
+      "en": "Live Form"
+    },
+    "common.qty": {
+      "tr": "Adet",
+      "en": "pcs"
+    },
+    "common.quantity": {
+      "tr": "Miktar",
+      "en": "Quantity"
+    },
+    "common.weight": {
+      "tr": "Ağırlık",
+      "en": "Weight"
+    },
+    "common.volume": {
+      "tr": "Hacim",
+      "en": "Volume"
+    },
+    "common.lotNo": {
+      "tr": "Lot No",
+      "en": "Lot No"
+    },
+    "common.productName": {
+      "tr": "Ürün Adı",
+      "en": "Product Name"
+    }
+  }
+}
