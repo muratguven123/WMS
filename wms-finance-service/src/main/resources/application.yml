@@ -1,0 +1,60 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: wms-finance-service
+
+  # ============================================================
+  # Keycloak — OAuth2 Resource Server (JWT)
+  # Gelen Bearer token'lar issuer'a karşı imza + expiry
+  # doğrulamasından geçer. JWK anahtar seti Keycloak'tan çekilir.
+  # ============================================================
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/wms-realm}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/wms-realm/protocol/openid-connect/certs}
+  
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/wms_finance_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: finance
+
+  flyway:
+    enabled: true
+    schemas: finance
+    default-schema: finance
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      time-to-live: 43200000 # 12 Hours in milliseconds
+
+logging:
+  level:
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+
+wms:
+  security:
+    cors:
+      # UI origin'leri — virgulle ayrilmis liste
+      allowed-origin-patterns: ${WMS_CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:*,http://127.0.0.1:*}
+  finance:
+    tcmb:
+      # true ise servis başlarken TCMB today.xml çekilir (canlı kur güncellemesi)
+      sync-on-startup: ${WMS_TCMB_SYNC_ON_STARTUP:false}
