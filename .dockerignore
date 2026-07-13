@@ -1,0 +1,12 @@
+**/target/
+wms-ui/node_modules/
+wms-ui/dist/
+**/.git/
+**/.idea/
+**/.cursor/
+**/promptlar/
+**/proje_fazlari/
+**/business_requirements/
+**/*.md
+**/agent-tools/
+**/terminals/
