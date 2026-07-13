@@ -1,0 +1,87 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: wms-core-service
+
+  # ============================================================
+  # Keycloak — OAuth2 Resource Server (JWT)
+  # Gelen Bearer token'lar issuer'a karşı imza + expiry
+  # doğrulamasından geçer. JWK anahtar seti Keycloak'tan çekilir.
+  # ============================================================
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/wms-realm}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/wms-realm/protocol/openid-connect/certs}
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/wms_core_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      # password: secret   # production'da environment variable ile override edilmeli
+      timeout: 2000ms
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
+  jackson:
+    # Tarihleri sayısal timestamp yerine ISO-8601 string olarak serialize et
+    serialization:
+      write-dates-as-timestamps: false
+      write-dates-with-zone-id: false
+    # Deserialize sırasında bilinmeyen alanları yoksay
+    deserialization:
+      fail-on-unknown-properties: false
+    # Tüm zaman değerleri UTC (Z) olarak normalize edilir
+    time-zone: UTC
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 12
+
+logging:
+  level:
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+
+wms:
+  security:
+    cors:
+      # UI origin pattern'leri — virgulle ayrilmis liste (env: WMS_CORS_ALLOWED_ORIGIN_PATTERNS)
+      allowed-origin-patterns: ${WMS_CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:*,http://127.0.0.1:*}
+  keycloak:
+    url: ${KEYCLOAK_URL:http://localhost:8080}
+    realm: wms-realm
+    client-id: wms-api
+    client-secret: ${KEYCLOAK_CLIENT_SECRET:wms-api-dev-secret}
+  services:
+    localization:
+      # İş İsteri 18 — ülke pasifleştirme öncesi cross-service kullanım kontrolü
+      base-url: ${WMS_LOCALIZATION_BASE_URL:http://localhost:8082}
