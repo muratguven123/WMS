@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend — mvn verify (unit + IT)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # -P ops: inbound/inventory/outbound/notification modüllerini de dahil eder.
+      # verify: surefire (unit) + failsafe (*IT, Testcontainers/Docker) koşar.
+      - name: Build & test
+        run: mvn -B -ntp -P ops verify
+
+      - name: Test raporlarını yükle (hata durumunda)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: '**/target/*-reports/**'
+          retention-days: 7
+
+  frontend:
+    name: Frontend — wms-ui lint + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wms-ui
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: wms-ui/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
