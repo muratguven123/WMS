@@ -1,0 +1,495 @@
+# WMS Docker Compose
+#
+# Varsayılan stack (lokalizasyon / finans odaklı):
+#   docker compose up
+#
+# Tam depo operasyonları (inbound, inventory, outbound, notification):
+#   docker compose --profile ops up
+#
+# UI geliştirici modu (tüm menüler): http://localhost:5173/?dev=true
+#   (?dev=true localStorage'a yazılır; ?dev=false ile temizlenir)
+#
+# wms-kafka varsayılan stack'te bilinçli olarak kalır (core + integration Kafka kullanır).
+
+x-service-common: &service-common
+  restart: unless-stopped
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  networks:
+    - wms-network
+  depends_on:
+    wms-db-init:
+      condition: service_completed_successfully
+
+x-postgres-host: &postgres-host
+  POSTGRES_HOST: host.docker.internal
+  POSTGRES_PORT: "5432"
+
+x-db-credentials: &db-credentials
+  SPRING_DATASOURCE_USERNAME: postgres
+  SPRING_DATASOURCE_PASSWORD: postgres
+
+x-keycloak-env: &keycloak-env
+  KEYCLOAK_ISSUER_URI: http://localhost:8080/realms/wms-realm
+  KEYCLOAK_JWK_SET_URI: http://wms-keycloak:8080/realms/wms-realm/protocol/openid-connect/certs
+  KEYCLOAK_URL: http://wms-keycloak:8080
+  KEYCLOAK_CLIENT_SECRET: wms-api-dev-secret
+
+x-service-build: &service-build
+  context: .
+  dockerfile: Dockerfile
+
+x-java-mem: &java-mem
+  JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m -XX:+UseSerialGC"
+
+x-core-health-dep: &core-health-dep
+  wms-core-service:
+    condition: service_healthy
+
+x-service-healthcheck: &service-healthcheck
+  interval: 10s
+  timeout: 5s
+  retries: 18
+  start_period: 120s
+
+services:
+  # Uses your local PostgreSQL on localhost:5432 (same server as pgAdmin).
+  wms-db-init:
+    image: postgres:16-alpine
+    container_name: wms-db-init
+    environment:
+      <<: *postgres-host
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    volumes:
+      - ./docker/postgres/create-databases.sh:/create-databases.sh:ro
+    entrypoint: ["sh", "/create-databases.sh"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - wms-network
+    restart: "no"
+
+  wms-pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: wms-pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@wms.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      PGPASSFILE: /pgpass
+    volumes:
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+      - ./docker/pgadmin/pgpass:/pgpass:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - wms-network
+    restart: unless-stopped
+
+  wms-redis:
+    image: redis:7-alpine
+    container_name: wms-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - wms-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - wms-network
+
+  wms-kafka:
+    image: apache/kafka:3.7.1
+    container_name: wms-kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENERS: PLAINTEXT_HOST://:9092,PLAINTEXT://:9093,CONTROLLER://:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://localhost:9092,PLAINTEXT://wms-kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@wms-kafka:9094
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - wms-kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+    networks:
+      - wms-network
+
+  wms-keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: wms-keycloak
+    command: ["start-dev", "--import-realm"]
+    ports:
+      - "8080:8080"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://host.docker.internal:5432/keycloak_db
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+      KC_HOSTNAME: localhost
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+    volumes:
+      - ./docker/keycloak/import:/opt/keycloak/data/import:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      wms-db-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && grep -q 'UP' <&3"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - wms-network
+
+  # Ensures wms-realm exists (--import-realm on first boot + Admin API fallback).
+  wms-keycloak-init:
+    image: curlimages/curl:8.11.1
+    container_name: wms-keycloak-init
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KEYCLOAK_URL: http://wms-keycloak:8080
+    volumes:
+      - ./docker/keycloak/import-realm.sh:/import-realm.sh:ro
+      - ./docker/keycloak/import:/import:ro
+      - ./docker/keycloak/config:/config:ro
+    entrypoint: ["/bin/sh", "/import-realm.sh"]
+    depends_on:
+      wms-keycloak:
+        condition: service_healthy
+    networks:
+      - wms-network
+    restart: "no"
+
+  wms-core-service:
+    <<: *service-common
+    build:
+      <<: *service-build
+      args:
+        SERVICE_MODULE: wms-core-service
+    container_name: wms-core-service
+    ports:
+      - "8081:8081"
+    environment:
+      <<: [*db-credentials, *keycloak-env, *java-mem]
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/wms_core_db
+      SPRING_DATA_REDIS_HOST: wms-redis
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: wms-kafka:9093
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8081'"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 90s
+    depends_on:
+      wms-db-init:
+        condition: service_completed_successfully
+      wms-redis:
+        condition: service_healthy
+      wms-kafka:
+        condition: service_healthy
+      wms-keycloak-init:
+        condition: service_completed_successfully
+
+  # Yerel makine çevirisi — LibreTranslate birincil, MyMemory yedek (MachineTranslationService).
+  # İlk açılışta LT_LOAD_ONLY'deki dillerin Argos modelleri indirilir.
+  # 15 dil (~en üzerinden pivot) ilk indirmede birkaç GB indirir; start_period 20dk.
+  wms-libretranslate:
+    image: libretranslate/libretranslate:v1.6.4
+    container_name: wms-libretranslate
+    user: "0:0"
+    ports:
+      - "5000:5000"
+    environment:
+      LT_LOAD_ONLY: en,tr,es,fr,de,it,pt,ru,ar,zh,ja,ko,hi,nl,pl
+      LT_DISABLE_WEB_UI: "true"
+    volumes:
+      - ./docker/libretranslate/entrypoint.sh:/init/entrypoint.sh:ro
+      - libretranslate-data:/home/libretranslate/.local/share/argos-translate
+    entrypoint: ["/bin/sh", "/init/entrypoint.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5000/languages >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 30
+      start_period: 1200s
+    deploy:
+      resources:
+        limits:
+          memory: 8g
+    networks:
+      - wms-network
+    restart: unless-stopped
+
+  wms-localization-service:
+    <<: *service-common
+    build:
+      <<: *service-build
+      args:
+        SERVICE_MODULE: wms-localization-service
+    container_name: wms-localization-service
+    ports:
+      - "8082:8082"
+    environment:
+      <<: [*db-credentials, *keycloak-env, *java-mem]
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/wms_localization_db
+      SPRING_DATA_REDIS_HOST: wms-redis
+      # LibreTranslate yoksa MyMemory devreye girer (LibreTranslateProvider başarısız olunca).
+      LIBRETRANSLATE_URL: http://wms-libretranslate:5000/translate
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8082'"]
+    depends_on:
+      wms-db-init:
+        condition: service_completed_successfully
+      wms-redis:
+        condition: service_healthy
+      wms-keycloak-init:
+        condition: service_completed_successfully
+      <<: *core-health-dep
+
+  wms-finance-service:
+    <<: *service-common
+    build:
+      <<: *service-build
+      args:
+        SERVICE_MODULE: wms-finance-service
+    container_name: wms-finance-service
+    ports:
+      - "8083:8083"
+    environment:
+      <<: [*db-credentials, *keycloak-env, *java-mem]
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/wms_finance_db
+      SPRING_DATA_REDIS_HOST: wms-redis
+      WMS_TCMB_SYNC_ON_STARTUP: "true"
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8083'"]
+    depends_on:
+      wms-db-init:
+        condition: service_completed_successfully
+      wms-redis:
+        condition: service_healthy
+      wms-keycloak-init:
+        condition: service_completed_successfully
+      <<: *core-health-dep
+
+  wms-billing-service:
+    <<: *service-common
+    build:
+      <<: *service-build
+      args:
+        SERVICE_MODULE: wms-billing-service
+    container_name: wms-billing-service
+    ports:
+      - "8084:8084"
+    environment:
+      <<: [*db-credentials, *keycloak-env, *java-mem]
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/wms_billing_db
+      WMS_FINANCE_SERVICE_URL: http://wms-finance-service:8083
+    depends_on:
+      wms-db-init:
+        condition: service_completed_successfully
+      wms-keycloak-init:
+        condition: service_completed_successfully
+      <<: *core-health-dep
+      wms-finance-service:
+        condition: service_healthy
+
+  wms-integration-service:
+    <<: *service-common
+    build:
+      <<: *service-build
+      args:
+        SERVICE_MODULE: wms-integration-service
+    container_name: wms-integration-service
+    ports:
+      - "8085:8085"
+    environment:
+      <<: [*db-credentials, *keycloak-env, *java-mem]
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/wms_integration_db
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: wms-kafka:9093
+    depends_on:
+      wms-db-init:
+        condition: service_completed_successfully
+      wms-kafka:
+        condition: service_healthy
+      wms-keycloak-init:
+        condition: service_completed_successfully
+      <<: *core-health-dep
+
+  wms-inbound-service:
+    <<: *service-common
+    profiles: ["ops"]
+    build:
+      <<: *service-build
+      args:
+        SERVICE_MODULE: wms-inbound-service
+    container_name: wms-inbound-service
+    ports:
+      - "8086:8086"
+    environment:
+      <<: [*db-credentials, *keycloak-env, *java-mem]
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/wms_inbound_db
+      WMS_CORE_SERVICE_URL: http://wms-core-service:8081
+      WMS_INTEGRATION_SERVICE_URL: http://wms-integration-service:8085
+    depends_on:
+      wms-db-init:
+        condition: service_completed_successfully
+      wms-kafka:
+        condition: service_healthy
+      wms-keycloak-init:
+        condition: service_completed_successfully
+      wms-core-service:
+        condition: service_healthy
+      wms-integration-service:
+        condition: service_started
+
+  wms-inventory-service:
+    <<: *service-common
+    profiles: ["ops"]
+    build:
+      <<: *service-build
+      args:
+        SERVICE_MODULE: wms-inventory-service
+    container_name: wms-inventory-service
+    ports:
+      - "8087:8087"
+    environment:
+      <<: [*db-credentials, *keycloak-env, *java-mem]
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/wms_inventory_db
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: wms-kafka:9093
+      WMS_CORE_SERVICE_URL: http://wms-core-service:8081
+    depends_on:
+      wms-db-init:
+        condition: service_completed_successfully
+      wms-kafka:
+        condition: service_healthy
+      wms-keycloak-init:
+        condition: service_completed_successfully
+      wms-core-service:
+        condition: service_healthy
+
+  wms-outbound-service:
+    <<: *service-common
+    profiles: ["ops"]
+    build:
+      <<: *service-build
+      args:
+        SERVICE_MODULE: wms-outbound-service
+    container_name: wms-outbound-service
+    ports:
+      - "8088:8088"
+    environment:
+      <<: [*db-credentials, *keycloak-env, *java-mem]
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/wms_outbound_db
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: wms-kafka:9093
+      WMS_CORE_SERVICE_URL: http://wms-core-service:8081
+      WMS_INVENTORY_SERVICE_URL: http://wms-inventory-service:8087
+      WMS_INTEGRATION_SERVICE_URL: http://wms-integration-service:8085
+    depends_on:
+      wms-db-init:
+        condition: service_completed_successfully
+      wms-kafka:
+        condition: service_healthy
+      wms-keycloak-init:
+        condition: service_completed_successfully
+      wms-core-service:
+        condition: service_healthy
+      wms-finance-service:
+        condition: service_healthy
+      wms-localization-service:
+        condition: service_healthy
+      wms-inventory-service:
+        condition: service_started
+      wms-integration-service:
+        condition: service_started
+
+  wms-notification-service:
+    <<: *service-common
+    profiles: ["ops"]
+    build:
+      <<: *service-build
+      args:
+        SERVICE_MODULE: wms-notification-service
+    container_name: wms-notification-service
+    ports:
+      - "8089:8089"
+    environment:
+      <<: [*keycloak-env, *java-mem]
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATA_REDIS_HOST: wms-redis
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: wms-kafka:9093
+    depends_on:
+      wms-redis:
+        condition: service_healthy
+      wms-kafka:
+        condition: service_healthy
+      wms-keycloak-init:
+        condition: service_completed_successfully
+
+  wms-ui:
+    build:
+      context: .
+      dockerfile: wms-ui/Dockerfile
+    container_name: wms-ui
+    ports:
+      - "5173:80"
+    depends_on:
+      wms-keycloak-init:
+        condition: service_completed_successfully
+      wms-core-service:
+        condition: service_started
+      wms-localization-service:
+        condition: service_started
+      wms-finance-service:
+        condition: service_started
+      wms-billing-service:
+        condition: service_started
+      wms-integration-service:
+        condition: service_started
+    networks:
+      - wms-network
+    restart: unless-stopped
+
+volumes:
+  wms-redis-data:
+  wms-kafka-data:
+  libretranslate-data:
+
+networks:
+  wms-network:
+    driver: bridge
