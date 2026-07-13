@@ -1,0 +1,102 @@
+Service,Port,Method,Endpoint,Description,Nginx Proxied
+wms-core-service,8081,POST,/api/auth/login,Giriş (JSON veya form-urlencoded),Yes
+wms-core-service,8081,POST,/api/auth/refresh,Token yenileme,Yes
+wms-core-service,8081,GET,/api/users,Kullanıcı listesi,Yes
+wms-core-service,8081,POST,/api/users,Yeni kullanıcı oluştur,Yes
+wms-core-service,8081,DELETE,/api/users/{userId},Kullanıcı deaktive et,Yes
+wms-core-service,8081,GET,/api/users/roles,Rol listesi,Yes
+wms-core-service,8081,GET,/api/users/keycloak-roles,Keycloak rol listesi,Yes
+wms-core-service,8081,GET,/api/org/companies,Şirket listesi,Yes
+wms-core-service,8081,GET,/api/org/companies/{companyId}/locations,Şirket lokasyonları,Yes
+wms-core-service,8081,GET,/api/address/countries,Ülke listesi,Yes
+wms-core-service,8081,GET,/api/address/states,Eyalet/il listesi,Yes
+wms-core-service,8081,GET,/api/address/cities,Şehir listesi,Yes
+wms-core-service,8081,GET,/api/address/districts,İlçe listesi,Yes
+wms-core-service,8081,GET,/api/address/neighborhoods,Mahalle listesi,Yes
+wms-core-service,8081,GET,/api/locations/search,Depo lokasyonu arama,Yes
+wms-core-service,8081,GET,/api/locations/utilization,Kapasite kullanım oranı,Yes
+wms-core-service,8081,GET,/api/locations/{locationId},Lokasyon detayı,Yes
+wms-core-service,8081,GET,/api/locations/{locationId}/capacity/check,Kapasite kontrolü,Yes
+wms-core-service,8081,POST,/api/locations/{locationId}/capacity/load,Kapasite yük güncelle,Yes
+wms-core-service,8081,POST,/api/locations/{locationId}/status,Lokasyon durumu güncelle,Yes
+wms-core-service,8081,GET,/api/stocks,Stok listesi,Yes
+wms-core-service,8081,POST,/api/transfers,Depolar arası transfer emri,No
+wms-core-service,8081,GET,/api/workflow/next-step,Sonraki iş akışı adımı,No
+wms-core-service,8081,POST,/api/inbound/receipts/{receiptId}/qc,Inbound QC adımı tamamla (core),No
+wms-core-service,8081,POST,/api/inbound/receipts/{receiptId}/putaway,Inbound putaway adımı tamamla (core),No
+wms-core-service,8081,GET,/api/process-config/steps,Süreç adım konfigürasyonları,Yes
+wms-core-service,8081,GET,/api/process-config/steps/{stepConfigId},Süreç adım detayı,Yes
+wms-core-service,8081,PUT,/api/process-config/steps/{stepConfigId},Süreç adım güncelle,Yes
+wms-core-service,8081,GET,/api/approvals/pending,Bekleyen onaylar,Yes
+wms-core-service,8081,POST,/api/approvals/{id}/approve,Onay ver,Yes
+wms-core-service,8081,POST,/api/approvals/{id}/reject,Onay reddet,Yes
+wms-core-service,8081,GET,/api/ui/screens/{screenCode}/schema,Dinamik ekran şeması,Yes
+wms-core-service,8081,POST,/api/ui/rules,UI kuralı oluştur,Yes
+wms-core-service,8081,PUT,/api/ui/rules/{ruleId},UI kuralı güncelle,Yes
+wms-core-service,8081,DELETE,/api/ui/rules/{ruleId},UI kuralı sil,Yes
+wms-core-service,8081,GET,/api/audit/logs,Audit log listesi,Yes
+wms-core-service,8081,POST,/api/demo/receipts,Demo mal kabul oluştur,No
+wms-core-service,8081,GET,/actuator/health,Sağlık kontrolü,No
+wms-localization-service,8082,GET,/api/v1/languages,Dil listesi,Yes
+wms-localization-service,8082,POST,/api/v1/languages,Yeni dil ekle,Yes
+wms-localization-service,8082,POST,/api/v1/languages/{code}/auto-translate,Otomatik çeviri başlat,Yes
+wms-localization-service,8082,GET,/api/v1/languages/{code}/translation-status,Çeviri durumu,Yes
+wms-localization-service,8082,GET,/api/v1/translations,Çevirileri getir,Yes
+wms-localization-service,8082,DELETE,/api/v1/translations/cache,Çeviri önbelleğini temizle,Yes
+wms-localization-service,8082,GET,/api/v1/translations/export,Çevirileri dışa aktar,Yes
+wms-localization-service,8082,POST,/api/v1/translations/import,Çevirileri içe aktar,Yes
+wms-localization-service,8082,POST,/api/v1/translations/missing,Eksik çeviri bildir,Yes
+wms-localization-service,8082,GET,/api/v1/translations/missing,Eksik çevirileri listele,Yes
+wms-localization-service,8082,POST,/api/v1/translation-keys/sync,Çeviri anahtarlarını senkronize et,Yes
+wms-localization-service,8082,GET,/api/v1/formats/active,Aktif format konfigürasyonu,Yes
+wms-localization-service,8082,GET,/api/formats/active,Aktif format (v1 olmadan),No
+wms-localization-service,8082,POST,/api/addresses,Adres oluştur,Yes
+wms-localization-service,8082,PUT,/api/addresses/{id},Adres güncelle,Yes
+wms-localization-service,8082,GET,/api/addresses/{id},Adres detayı,Yes
+wms-localization-service,8082,GET,/actuator/health,Sağlık kontrolü,No
+wms-finance-service,8083,GET,/api/rates/lookup,Döviz kuru sorgula,Yes
+wms-finance-service,8083,POST,/api/rates/manual,Manuel kur ekle/güncelle,Yes
+wms-finance-service,8083,GET,/api/taxes/rates,Vergi oranları listesi,Yes
+wms-finance-service,8083,POST,/api/taxes/rates/update,Vergi oranı güncelle,Yes
+wms-finance-service,8083,POST,/api/taxes/calculate,Vergi hesapla,Yes
+wms-finance-service,8083,POST,/api/finance/orders,Finans siparişi oluştur,Yes
+wms-finance-service,8083,POST,/api/finance/contracts,Sözleşme oluştur,Yes
+wms-finance-service,8083,POST,/api/finance/transactions,Finansal işlem kaydet,Yes
+wms-finance-service,8083,GET,/actuator/health,Sağlık kontrolü,No
+wms-integration-service,8085,GET,/api/integrations/logs,Entegrasyon logları,Yes
+wms-integration-service,8085,GET,/api/integrations/logs/{logId},Entegrasyon log detayı,Yes
+wms-integration-service,8085,POST,/api/integrations/logs/{logId}/retry,Entegrasyon yeniden dene,Yes
+wms-integration-service,8085,GET,/api/integrations/stats,Entegrasyon istatistikleri,Yes
+wms-integration-service,8085,POST,/api/integrations/movements,Hareket kuyruğuna ekle,Yes
+wms-integration-service,8085,POST,/api/integration/erp/receipts,ERP mal kabul entegrasyonu,No
+wms-integration-service,8085,POST,/api/integration/erp/shipments,ERP sevkiyat entegrasyonu,No
+wms-integration-service,8085,GET,/actuator/health,Sağlık kontrolü,No
+wms-inbound-service,8086,GET,/api/inbound/receipts,Mal kabul listesi,Yes
+wms-inbound-service,8086,POST,/api/inbound/receipts,Mal kabul başlat,Yes
+wms-inbound-service,8086,POST,/api/inbound/receipts/{receiptId}/qc,Kalite kontrol gönder,Yes
+wms-inbound-service,8086,POST,/api/inbound/receipts/{receiptId}/approve,Mal kabul onayla,Yes
+wms-inbound-service,8086,GET,/api/inbound/receipts/{receiptId}/putaway,Yerleştirme önerileri,Yes
+wms-inbound-service,8086,GET,/api/inbound/receipts/{receiptId}/items/{productCode}/putaway,Ürün bazlı yerleştirme önerisi,Yes
+wms-inbound-service,8086,GET,/actuator/health,Sağlık kontrolü,No
+wms-inventory-service,8087,POST,/api/inventory/allocate,Stok ayır,Yes
+wms-inventory-service,8087,POST,/api/inventory/move,Stok taşı,Yes
+wms-inventory-service,8087,POST,/api/inventory/count/adjust,Sayım düzeltmesi,Yes
+wms-inventory-service,8087,POST,/api/inventory/issue,Stok çıkışı,Yes
+wms-inventory-service,8087,GET,/actuator/health,Sağlık kontrolü,No
+wms-outbound-service,8088,GET,/api/picking/lists,Toplama listeleri,Yes
+wms-outbound-service,8088,POST,/api/picking/lists,Toplama listesi oluştur,Yes
+wms-outbound-service,8088,GET,/api/picking/tasks/my,Bana atanmış görevler,Yes
+wms-outbound-service,8088,GET,/api/picking/tasks/unassigned,Atanmamış görevler,Yes
+wms-outbound-service,8088,POST,/api/picking/lists/{id}/assign,Toplama listesi ata,Yes
+wms-outbound-service,8088,POST,/api/picking/lists/{id}/start,Toplama başlat,Yes
+wms-outbound-service,8088,POST,/api/picking/items/{itemId}/confirm,Toplama onayla,Yes
+wms-outbound-service,8088,POST,/api/packing/verify,Paketleme doğrula,Yes
+wms-outbound-service,8088,POST,/api/packing/close-box,Kutu kapat,Yes
+wms-outbound-service,8088,GET,/api/shipping/shipments,Sevkiyat listesi,Yes
+wms-outbound-service,8088,POST,/api/shipping/shipments,Sevkiyat oluştur,Yes
+wms-outbound-service,8088,POST,/api/shipping/{shipmentId}/label,Sevkiyat etiketi oluştur,Yes
+wms-outbound-service,8088,POST,/api/shipping/verify-load,Yükleme doğrula,Yes
+wms-outbound-service,8088,POST,/api/shipping/{shipmentId}/dispatch,Sevkiyat gönder,Yes
+wms-outbound-service,8088,GET,/actuator/health,Sağlık kontrolü,No
+wms-notification-service,8089,WS,/ws,STOMP WebSocket bağlantı noktası,Yes
+wms-notification-service,8089,GET,/actuator/health,Sağlık kontrolü,No
