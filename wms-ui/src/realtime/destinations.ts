@@ -11,6 +11,8 @@ export const stompDestinations = {
     `/topic/company.${companyId}.location.${locationId}.tasks`,
   operators: (companyId: number, locationId: number) =>
     `/topic/company.${companyId}.location.${locationId}.operators`,
+  /** Firma CRUD sonrası Organizasyon Yapısı / header yenileme */
+  orgCompanies: () => `/topic/org.companies`,
 };
 
 function wsBase(): string {

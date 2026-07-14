@@ -28,6 +28,7 @@ import {
   UserCog,
   Radio,
   Settings2,
+  Factory,
 } from "lucide-react";
 import { keycloak, tenantContext, logoutUser } from "../api/wms-api-client";
 import { canAccessView, getRealmRoles, isWmsAdmin, FEATURES, isFeatureEnabled } from "../auth/roles";
@@ -163,6 +164,7 @@ export const Layout: React.FC<LayoutProps> = ({
       label: t("nav.group.admin"),
       items: [
         { id: "org-hierarchy", label: t("nav.orgHierarchy"), icon: Network },
+        { id: "company-management", label: t("nav.companyMgmt"), icon: Factory },
         { id: "country-management", label: t("nav.countryMgmt"), icon: Globe },
         { id: "users", label: t("nav.users"), icon: UserCog },
         { id: "workflow-config", label: t("nav.workflowConfig"), icon: GitBranch },

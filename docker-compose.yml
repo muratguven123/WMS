@@ -40,7 +40,9 @@ x-service-build: &service-build
   dockerfile: Dockerfile
 
 x-java-mem: &java-mem
-  JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m -XX:+UseSerialGC"
+  # preferIPv4Stack: Docker Desktop'ta host.docker.internal IPv6'ya (fdc4::) düşüp
+  # "Network is unreachable" verdiği için IPv4 (192.168.65.254) zorunlu.
+  JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m -XX:+UseSerialGC -Djava.net.preferIPv4Stack=true"
 
 x-core-health-dep: &core-health-dep
   wms-core-service:

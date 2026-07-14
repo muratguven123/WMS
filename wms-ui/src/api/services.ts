@@ -910,7 +910,8 @@ export interface InvoiceItemInput {
   quantity: number;
   unitPriceOriginal: number;
   discountOriginal: number;
-  taxRate: number;
+  taxTypeCode: string;
+  taxRate?: number;
 }
 
 export interface InvoiceItemResult extends InvoiceItemInput {
@@ -1173,4 +1174,53 @@ export const geoAdminService = {
     coreApi.post<NamedDto>(`/api/admin/geo/cities/${cityId}/districts`, req).then((r) => r.data),
   addNeighborhood: (districtId: number, req: { name: string; zipCode?: string | null }) =>
     coreApi.post<NeighborhoodDto>(`/api/admin/geo/districts/${districtId}/neighborhoods`, req).then((r) => r.data),
+};
+
+// Core — firma yönetimi (WMS_ADMIN)
+export interface CompanyAdminDto {
+  id: number;
+  organizationId: number;
+  organizationName: string;
+  name: string;
+  taxNumber: string;
+  taxOffice: string | null;
+  active: boolean;
+  locationCount: number;
+}
+export interface CompanyUsageDto {
+  companyId: number;
+  activeLocationCount: number;
+  userAccessCount: number;
+  transactionLogCount: number;
+  canDeactivate: boolean;
+}
+export interface OrganizationOptionDto {
+  id: number;
+  name: string;
+}
+
+export const companyAdminService = {
+  listOrganizations: () =>
+    coreApi.get<OrganizationOptionDto[]>("/api/admin/org/organizations").then((r) => r.data),
+  listCompanies: () =>
+    coreApi.get<CompanyAdminDto[]>("/api/admin/org/companies").then((r) => r.data),
+  createCompany: (req: {
+    organizationId: number;
+    name: string;
+    taxNumber: string;
+    taxOffice?: string | null;
+  }) => coreApi.post<CompanyAdminDto>("/api/admin/org/companies", req).then((r) => r.data),
+  updateCompany: (
+    companyId: number,
+    req: { name: string; taxNumber: string; taxOffice?: string | null },
+  ) =>
+    coreApi.put<CompanyAdminDto>(`/api/admin/org/companies/${companyId}`, req).then((r) => r.data),
+  deactivateCompany: (companyId: number) =>
+    coreApi.delete<void>(`/api/admin/org/companies/${companyId}`),
+  reactivateCompany: (companyId: number) =>
+    coreApi
+      .post<CompanyAdminDto>(`/api/admin/org/companies/${companyId}/reactivate`)
+      .then((r) => r.data),
+  getCompanyUsage: (companyId: number) =>
+    coreApi.get<CompanyUsageDto>(`/api/admin/org/companies/${companyId}/usage`).then((r) => r.data),
 };

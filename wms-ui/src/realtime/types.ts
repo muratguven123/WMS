@@ -7,13 +7,14 @@ export type WmsEventType =
   | "TASK_ASSIGNED"
   | "TASK_PROGRESS"
   | "TASK_COMPLETED"
-  | "OPERATOR_STATUS_UPDATED";
+  | "OPERATOR_STATUS_UPDATED"
+  | "COMPANY_CHANGED";
 
 export interface DomainEventMessage {
   eventId: string;
   eventType: WmsEventType;
   occurredAt: string;
   companyId: number;
-  locationId: number;
+  locationId: number | null;
   payload: Record<string, unknown>;
 }

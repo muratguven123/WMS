@@ -39,6 +39,7 @@ interface LineFormRow {
   quantity: string;
   unitPriceOriginal: string;
   discountOriginal: string;
+  taxTypeCode: string;
   taxRate: string;
 }
 
@@ -50,7 +51,8 @@ const emptyLine = (): LineFormRow => ({
   quantity: "1",
   unitPriceOriginal: "",
   discountOriginal: "0",
-  taxRate: "20",
+  taxTypeCode: "KDV",
+  taxRate: "",
 });
 
 const parseNum = (s: string) => parseFloat(s.replace(",", "."));
@@ -117,15 +119,17 @@ export function InvoiceTab({ activeLocationId, tenantReady, run }: InvoiceTabPro
       const qty = parseNum(line.quantity);
       const price = parseNum(line.unitPriceOriginal);
       const discount = parseNum(line.discountOriginal || "0");
-      const tax = parseNum(line.taxRate);
-      if (!line.itemDescription.trim() || isNaN(qty) || qty <= 0 || isNaN(price) || price < 0) return null;
-      if (isNaN(discount) || discount < 0 || isNaN(tax) || tax < 0 || tax > 100) return null;
+      const taxOverride = line.taxRate.trim() ? parseNum(line.taxRate) : undefined;
+      if (!line.itemDescription.trim() || !line.taxTypeCode.trim() || isNaN(qty) || qty <= 0 || isNaN(price) || price < 0) return null;
+      if (isNaN(discount) || discount < 0) return null;
+      if (taxOverride !== undefined && (isNaN(taxOverride) || taxOverride < 0 || taxOverride > 100)) return null;
       items.push({
         itemDescription: line.itemDescription.trim(),
         quantity: qty,
         unitPriceOriginal: price,
         discountOriginal: discount,
-        taxRate: tax,
+        taxTypeCode: line.taxTypeCode.trim(),
+        taxRate: taxOverride,
       });
     }
     if (items.length === 0) return null;
@@ -249,8 +253,11 @@ export function InvoiceTab({ activeLocationId, tenantReady, run }: InvoiceTabPro
                 onChange={(e) => updateLine(line.key, { discountOriginal: e.target.value })}
               />
             </Field>
-            <Field label={t("bill.invoice.taxRate")}>
-              <input className="form-input" value={line.taxRate} onChange={(e) => updateLine(line.key, { taxRate: e.target.value })} />
+            <Field label={t("bill.invoice.taxType")}>
+              <input className="form-input" value={line.taxTypeCode} onChange={(e) => updateLine(line.key, { taxTypeCode: e.target.value })} placeholder="KDV" />
+            </Field>
+            <Field label={t("bill.invoice.taxRateOverride")}>
+              <input className="form-input" value={line.taxRate} onChange={(e) => updateLine(line.key, { taxRate: e.target.value })} placeholder={t("bill.invoice.taxRateAuto")} />
             </Field>
             <div>
               <button type="button" className="btn btn-secondary" disabled={lines.length <= 1} onClick={() => removeLine(line.key)} style={{ padding: "6px 10px" }}>

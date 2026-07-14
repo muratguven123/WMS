@@ -40,6 +40,7 @@ export const VIEW_ROLES: Record<string, string[]> = {
   billing: ["FINANCE_USER", "FINANCE_MANAGER"],
   tax: ["FINANCE_MANAGER"],
   "org-hierarchy": [WMS_ADMIN],
+  "company-management": [WMS_ADMIN],
   "country-management": [WMS_ADMIN],
   users: [WMS_ADMIN],
   "workflow-config": ["WAREHOUSE_MANAGER"],
@@ -89,6 +90,11 @@ export function isDevMode(): boolean {
 
 export function isFeatureEnabled(featureName: string): boolean {
   if (isDevMode()) {
+    return true;
+  }
+
+  // Firma/org anlık yenileme için WMS_ADMIN realtime kullanır
+  if (featureName === FEATURES.REALTIME && isWmsAdmin()) {
     return true;
   }
 

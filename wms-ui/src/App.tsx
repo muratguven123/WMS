@@ -22,11 +22,14 @@ import { IntegrationMonitor } from "./views/IntegrationMonitor";
 import { AuditLog } from "./views/AuditLog";
 import { UserManagement } from "./views/UserManagement";
 import { CountryManagement } from "./views/CountryManagement";
+import { CompanyManagement } from "./views/CompanyManagement";
 import { RealtimeTest } from "./views/RealtimeTest";
 import { tenantContext } from "./api/wms-api-client";
 import { canAccessView } from "./auth/roles";
 import { DEMO_COMPANIES, DEMO_LOCATIONS, useOrgData } from "./hooks/useOrgData";
 import { StompProvider } from "./realtime/StompProvider";
+import { OrgCompaniesRealtimeSync } from "./realtime/OrgCompaniesRealtimeSync";
+import { onCompaniesChanged } from "./realtime/orgEvents";
 
 function App() {
   const { t } = useI18n();
@@ -37,7 +40,13 @@ function App() {
   const [highlightedBinId, setHighlightedBinId] = useState<string>("");
   const [tenantReady, setTenantReady] = useState(false);
 
-  const { companies, locations, loadLocations, setLocations } = useOrgData();
+  const { companies, locations, loadCompanies, loadLocations, setLocations } = useOrgData();
+
+  const refreshCompanies = useCallback(() => {
+    void loadCompanies().catch(() => undefined);
+  }, [loadCompanies]);
+
+  useEffect(() => onCompaniesChanged(refreshCompanies), [refreshCompanies]);
 
   const pickLocationId = (
     locs: { id: number }[],
@@ -202,6 +211,8 @@ function App() {
         return <AddressTemplateConfig />;
       case "country-management":
         return <CountryManagement />;
+      case "company-management":
+        return <CompanyManagement />;
       case "currency":
         return <CurrencyExchange />;
       case "billing":
@@ -251,6 +262,7 @@ function App() {
 
   return (
     <StompProvider companyId={tenantCompanyId} locationId={tenantLocationId}>
+      <OrgCompaniesRealtimeSync onChanged={refreshCompanies} />
       <Layout
       currentView={currentView}
       setCurrentView={navigateToView}
