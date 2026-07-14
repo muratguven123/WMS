@@ -52,4 +52,11 @@ public class ExchangeDifferenceLog {
     /** Alınan aksiyon açıklaması, örn. "POSTED_TO_ERP", "MANUAL_ADJUSTMENT". */
     @Column(name = "action_taken", nullable = false, length = 100)
     private String actionTaken;
+
+    /** Pozitif kur farkı üzerinden finance motorundan hesaplanan vergi tutarı. */
+    @Column(name = "tax_amount", precision = 18, scale = 4)
+    private BigDecimal taxAmount;
+
+    @Column(name = "tax_type_code", length = 32)
+    private String taxTypeCode;
 }

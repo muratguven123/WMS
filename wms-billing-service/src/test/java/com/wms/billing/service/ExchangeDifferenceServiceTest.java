@@ -32,6 +32,7 @@ class ExchangeDifferenceServiceTest {
 
     @Mock private InvoiceRepository              invoiceRepository;
     @Mock private ExchangeDifferenceLogRepository logRepository;
+    @Mock private TaxLookupService               taxLookupService;
 
     @InjectMocks
     private ExchangeDifferenceService sut;
@@ -41,9 +42,20 @@ class ExchangeDifferenceServiceTest {
     /** Fatura kesilirken kilitlenen kur: 1 EUR = 36.85 TRY */
     private static final BigDecimal LOCKED_RATE = new BigDecimal("36.850000");
 
+    @BeforeEach
+    void initDefaults() {
+        org.springframework.test.util.ReflectionTestUtils.setField(sut, "exchangeDifferenceTaxType", "KDV");
+        org.springframework.test.util.ReflectionTestUtils.setField(sut, "defaultCountryId", 1L);
+        when(taxLookupService.calculateExchangeDifferenceTax(any(), any(), any(), any(), any()))
+                .thenReturn(new TaxLookupService.TaxLineResult(
+                        new BigDecimal("100"), new BigDecimal("20"), new BigDecimal("120"),
+                        "KDV", new BigDecimal("20"), false));
+    }
+
     private Invoice buildInvoice(BigDecimal lockedRate) {
         Invoice inv = new Invoice();
         inv.setId(INVOICE_ID);
+        inv.setLocationId(1L);
         inv.setExchangeRateValue(lockedRate);
         inv.setInvoiceCurrency("EUR");
         inv.setAccountingCurrency("TRY");

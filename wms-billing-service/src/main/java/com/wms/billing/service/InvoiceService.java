@@ -29,7 +29,7 @@ public class InvoiceService {
     public InvoiceResponse calculatePreview(CalculateInvoiceRequest request) {
         Long locationId = TenantContextHolder.getLocationId();
         InvoiceDto calculated = calculate(request.customerId(), locationId,
-                request.invoiceCurrency(), request.exchangeRateDate(), request.items());
+                request.invoiceCurrency(), request.exchangeRateDate(), request.countryId(), request.items());
         return invoiceMapper.toPreviewResponse(calculated, request.customerId(), locationId);
     }
 
@@ -37,7 +37,7 @@ public class InvoiceService {
     public InvoiceResponse create(CreateInvoiceRequest request) {
         Long locationId = TenantContextHolder.getLocationId();
         InvoiceDto calculated = calculate(request.customerId(), locationId,
-                request.invoiceCurrency(), request.exchangeRateDate(), request.items());
+                request.invoiceCurrency(), request.exchangeRateDate(), request.countryId(), request.items());
 
         String invoiceNumber = invoiceNumberGenerator.generate(locationId);
         Invoice invoice = invoiceMapper.toEntity(calculated, invoiceNumber, locationId);
@@ -63,7 +63,7 @@ public class InvoiceService {
 
         Long locationId = TenantContextHolder.getLocationId();
         InvoiceDto calculated = calculate(request.customerId(), locationId,
-                request.invoiceCurrency(), request.exchangeRateDate(), request.items());
+                request.invoiceCurrency(), request.exchangeRateDate(), request.countryId(), request.items());
 
         invoice.setCustomerId(request.customerId());
         invoiceMapper.applyCalculated(invoice, calculated);
@@ -103,10 +103,10 @@ public class InvoiceService {
     }
 
     private InvoiceDto calculate(Long customerId, Long locationId, String invoiceCurrency,
-                                 java.time.LocalDate exchangeRateDate,
+                                 java.time.LocalDate exchangeRateDate, Long countryId,
                                  java.util.List<com.wms.billing.dto.InvoiceItemInputDto> items) {
         return calculationService.calculateInvoice(items, customerId, locationId,
-                invoiceCurrency, exchangeRateDate);
+                invoiceCurrency, exchangeRateDate, countryId);
     }
 
     private Page<Invoice> resolveListQuery(Long locationId, Long customerId,

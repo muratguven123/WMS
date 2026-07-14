@@ -22,6 +22,8 @@ public record CalculateInvoiceRequest(
         @NotNull(message = "Kur tarihi zorunludur")
         LocalDate exchangeRateDate,
 
+        Long countryId,
+
         @NotEmpty(message = "En az bir fatura satırı gereklidir")
         @Valid
         List<InvoiceItemInputDto> items

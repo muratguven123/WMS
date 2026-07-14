@@ -36,6 +36,9 @@ class InvoiceCalculationServiceTest {
     @Mock
     private CurrencyConversionService currencyConversionService;
 
+    @Mock
+    private TaxLookupService taxLookupService;
+
     @InjectMocks
     private InvoiceCalculationService sut;
 
@@ -46,9 +49,13 @@ class InvoiceCalculationServiceTest {
 
     @BeforeEach
     void setUp() {
-        // @Value alanlarını test ortamında enjekte et
         ReflectionTestUtils.setField(sut, "accountingScale",   2);
         ReflectionTestUtils.setField(sut, "accountingCurrency", "TRY");
+        ReflectionTestUtils.setField(sut, "defaultCountryId", 1L);
+    }
+
+    private InvoiceItemResultDto calcLine(InvoiceItemInputDto input) {
+        return sut.calculateLine(input, CUSTOMER_ID, LOCATION_ID, 1L, RATE_DATE);
     }
 
     // =========================================================================
@@ -67,12 +74,12 @@ class InvoiceCalculationServiceTest {
                     .quantity(new BigDecimal("10"))
                     .unitPriceOriginal(new BigDecimal("50.00"))
                     .discountOriginal(new BigDecimal("20.00"))
-                    .taxRate(new BigDecimal("20.00"))
+                    .taxTypeCode("KDV").taxRate(new BigDecimal("20.00"))
                     .build();
 
             // lineTotal = (10 × 50) − 20 = 480.0000
             // tax       = 480 × 0.20      = 96.0000
-            InvoiceItemResultDto result = sut.calculateLine(input);
+            InvoiceItemResultDto result = calcLine(input);
 
             assertThat(result.lineTotalOriginal()).isEqualByComparingTo("480.0000");
             assertThat(result.taxAmountOriginal()).isEqualByComparingTo("96.0000");
@@ -86,10 +93,10 @@ class InvoiceCalculationServiceTest {
                     .quantity(new BigDecimal("3"))
                     .unitPriceOriginal(new BigDecimal("100.00"))
                     .discountOriginal(BigDecimal.ZERO)
-                    .taxRate(new BigDecimal("18.00"))
+                    .taxTypeCode("KDV").taxRate(new BigDecimal("18.00"))
                     .build();
 
-            InvoiceItemResultDto result = sut.calculateLine(input);
+            InvoiceItemResultDto result = calcLine(input);
 
             assertThat(result.lineTotalOriginal()).isEqualByComparingTo("300.0000");
             assertThat(result.taxAmountOriginal()).isEqualByComparingTo("54.0000");
@@ -107,10 +114,10 @@ class InvoiceCalculationServiceTest {
                     .quantity(new BigDecimal("1"))
                     .unitPriceOriginal(new BigDecimal("1.0000"))
                     .discountOriginal(BigDecimal.ZERO)
-                    .taxRate(new BigDecimal("33.33"))
+                    .taxTypeCode("KDV").taxRate(new BigDecimal("33.33"))
                     .build();
 
-            InvoiceItemResultDto result = sut.calculateLine(input);
+            InvoiceItemResultDto result = calcLine(input);
 
             // 1 × 33.33 / 100 = 0.3333
             assertThat(result.taxAmountOriginal()).isEqualByComparingTo("0.3333");
@@ -124,13 +131,13 @@ class InvoiceCalculationServiceTest {
                     .quantity(new BigDecimal("2.5"))
                     .unitPriceOriginal(new BigDecimal("33.33"))
                     .discountOriginal(new BigDecimal("5.00"))
-                    .taxRate(new BigDecimal("20.00"))
+                    .taxTypeCode("KDV").taxRate(new BigDecimal("20.00"))
                     .build();
 
             // gross = 2.5 × 33.33 = 83.3250
             // lineTotal = 83.3250 − 5.00 = 78.3250
             // tax = 78.3250 × 0.20 = 15.6650
-            InvoiceItemResultDto result = sut.calculateLine(input);
+            InvoiceItemResultDto result = calcLine(input);
 
             assertThat(result.lineTotalOriginal()).isEqualByComparingTo("78.3250");
             assertThat(result.taxAmountOriginal()).isEqualByComparingTo("15.6650");
@@ -154,14 +161,14 @@ class InvoiceCalculationServiceTest {
                             .quantity(new BigDecimal("10"))
                             .unitPriceOriginal(new BigDecimal("100.00"))
                             .discountOriginal(new BigDecimal("50.00"))
-                            .taxRate(new BigDecimal("20.00"))
+                            .taxTypeCode("KDV").taxRate(new BigDecimal("20.00"))
                             .build(),
                     InvoiceItemInputDto.builder()
                             .itemDescription("Hizmet B")
                             .quantity(new BigDecimal("5"))
                             .unitPriceOriginal(new BigDecimal("200.00"))
                             .discountOriginal(BigDecimal.ZERO)
-                            .taxRate(new BigDecimal("10.00"))
+                            .taxTypeCode("KDV").taxRate(new BigDecimal("10.00"))
                             .build()
             );
         }
@@ -251,7 +258,7 @@ class InvoiceCalculationServiceTest {
                     .quantity(BigDecimal.ONE)
                     .unitPriceOriginal(new BigDecimal("99.99"))
                     .discountOriginal(BigDecimal.ZERO)
-                    .taxRate(new BigDecimal("20.00"))
+                    .taxTypeCode("KDV").taxRate(new BigDecimal("20.00"))
                     .build());
 
             InvoiceDto result = sut.calculateInvoice(items, CUSTOMER_ID, LOCATION_ID, "EUR", RATE_DATE);

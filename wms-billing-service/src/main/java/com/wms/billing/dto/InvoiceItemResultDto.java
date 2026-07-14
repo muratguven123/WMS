@@ -13,11 +13,12 @@ public record InvoiceItemResultDto(
         BigDecimal quantity,
         BigDecimal unitPriceOriginal,
         BigDecimal discountOriginal,
+        String taxTypeCode,
         BigDecimal taxRate,
 
         /** (quantity × unitPriceOriginal) − discountOriginal */
         BigDecimal lineTotalOriginal,
 
-        /** lineTotalOriginal × (taxRate / 100) */
+        /** lineTotalOriginal × (taxRate / 100) veya finance motor sonucu */
         BigDecimal taxAmountOriginal
 ) {}

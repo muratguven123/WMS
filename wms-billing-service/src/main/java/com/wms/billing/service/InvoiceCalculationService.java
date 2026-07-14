@@ -18,59 +18,30 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Fatura Hesaplama Motoru.
- *
- * <h3>Yuvarlama Politikası</h3>
- * <ul>
- *   <li>Satır bazı ara hesaplamalar: {@link RoundingMode#HALF_EVEN} (Banker's Rounding), scale=4.</li>
- *   <li>Muhasebe para birimi çevrimi: {@code accountingScale} (varsayılan 2), aynı yuvarlama modu.</li>
- * </ul>
- *
- * <h3>Kur Locking (Rate Lock)</h3>
- * Faturalama anındaki SELLING kur değeri, {@code exchangeRateValue} alanına kopyalanır.
- * Fatura APPROVED durumuna geçtikten sonra kur bilgisi güncellenemez
- * ({@link #assertRateLock} ile korunur).
+ * Fatura Hesaplama Motoru — satır vergisi finance Tax Engine üzerinden çözülür
+ * (manuel taxRate override desteklenir).
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class InvoiceCalculationService {
 
-    // Banker's Rounding — finansal hesaplamalarda sektör standardı
-    private static final RoundingMode LINE_ROUNDING       = RoundingMode.HALF_EVEN;
-    private static final int           LINE_SCALE          = 4;
-    private static final BigDecimal    HUNDRED             = new BigDecimal("100");
+    private static final RoundingMode LINE_ROUNDING = RoundingMode.HALF_EVEN;
+    private static final int LINE_SCALE = 4;
+    private static final BigDecimal HUNDRED = new BigDecimal("100");
 
     private final CurrencyConversionService currencyConversionService;
+    private final TaxLookupService taxLookupService;
 
-    /**
-     * Şirketin muhasebe para birimindeki tutar hassasiyeti (varsayılan 2 basamak).
-     * application.yml: {@code billing.accounting-scale}
-     */
     @Value("${billing.accounting-scale:2}")
     private int accountingScale;
 
-    /**
-     * Şirketin muhasebe (yerel) para birimi kodu.
-     * application.yml: {@code billing.accounting-currency}
-     */
     @Value("${billing.accounting-currency:TRY}")
     private String accountingCurrency;
 
-    // -------------------------------------------------------------------------
-    // Ana hesaplama metodu
-    // -------------------------------------------------------------------------
+    @Value("${billing.default-country-id:1}")
+    private Long defaultCountryId;
 
-    /**
-     * Verilen satır kalemleri ve parametrelerden tam bir fatura DTO'su hesaplar.
-     *
-     * @param items              ham satır kalemleri
-     * @param customerId         fatura müşterisi
-     * @param locationId         fatura lokasyonu
-     * @param invoiceCurrencyCode fatura para birimi (ISO 4217, örn. "EUR")
-     * @param rateDate           kurun alınacağı tarih
-     * @return hesaplanmış {@link InvoiceDto}
-     */
     public InvoiceDto calculateInvoice(
             List<InvoiceItemInputDto> items,
             Long customerId,
@@ -78,21 +49,29 @@ public class InvoiceCalculationService {
             String invoiceCurrencyCode,
             LocalDate rateDate
     ) {
-        log.debug("Fatura hesaplama başladı: müşteri={}, lokasyon={}, para birimi={}, kur tarihi={}",
-                customerId, locationId, invoiceCurrencyCode, rateDate);
+        return calculateInvoice(items, customerId, locationId, invoiceCurrencyCode, rateDate, null);
+    }
 
-        // 1. Kur çözümleme — SELLING tipi, tarih bazlı
+    public InvoiceDto calculateInvoice(
+            List<InvoiceItemInputDto> items,
+            Long customerId,
+            Long locationId,
+            String invoiceCurrencyCode,
+            LocalDate rateDate,
+            Long countryId
+    ) {
+        Long resolvedCountryId = countryId != null ? countryId : defaultCountryId;
+
+        log.debug("Fatura hesaplama başladı: müşteri={}, lokasyon={}, ülke={}, para birimi={}, kur tarihi={}",
+                customerId, locationId, resolvedCountryId, invoiceCurrencyCode, rateDate);
+
         BigDecimal exchangeRateValue = currencyConversionService.getRate(
                 invoiceCurrencyCode, accountingCurrency, rateDate, RateType.SELLING);
-        log.debug("Kur kilitlendi: {} → {} = {} ({})", invoiceCurrencyCode, accountingCurrency,
-                exchangeRateValue, rateDate);
 
-        // 2. Satır hesaplamaları
         List<InvoiceItemResultDto> calculatedItems = items.stream()
-                .map(this::calculateLine)
+                .map(item -> calculateLine(item, customerId, locationId, resolvedCountryId, rateDate))
                 .toList();
 
-        // 3. Fatura toplamları (orijinal para birimi)
         BigDecimal subtotalOriginal = calculatedItems.stream()
                 .map(InvoiceItemResultDto::lineTotalOriginal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -104,13 +83,9 @@ public class InvoiceCalculationService {
         BigDecimal grandTotalOriginal = subtotalOriginal.add(taxAmountOriginal)
                 .setScale(LINE_SCALE, LINE_ROUNDING);
 
-        // 4. Muhasebe para birimine çevrim
         BigDecimal grandTotalAccounting = grandTotalOriginal
                 .multiply(exchangeRateValue)
                 .setScale(accountingScale, LINE_ROUNDING);
-
-        log.debug("Hesaplama tamamlandı: grandTotalOriginal={} {}, grandTotalAccounting={} {}",
-                grandTotalOriginal, invoiceCurrencyCode, grandTotalAccounting, accountingCurrency);
 
         return InvoiceDto.builder()
                 .customerId(customerId)
@@ -128,77 +103,66 @@ public class InvoiceCalculationService {
                 .build();
     }
 
-    // -------------------------------------------------------------------------
-    // Satır hesaplama
-    // -------------------------------------------------------------------------
+    InvoiceItemResultDto calculateLine(
+            InvoiceItemInputDto input,
+            Long customerId,
+            Long locationId,
+            Long countryId,
+            LocalDate rateDate) {
 
-    /**
-     * Tek bir satır kaleminin tutarlarını hesaplar.
-     *
-     * <pre>
-     * lineTotalOriginal  = (quantity × unitPriceOriginal) − discountOriginal
-     * taxAmountOriginal  = lineTotalOriginal × (taxRate / 100)
-     * </pre>
-     *
-     * Tüm ara adımlar {@link RoundingMode#HALF_EVEN} ile scale=4'e yuvarlanır.
-     */
-    InvoiceItemResultDto calculateLine(InvoiceItemInputDto input) {
         if (input.discountOriginal().compareTo(
                 input.quantity().multiply(input.unitPriceOriginal())) > 0) {
             throw new IllegalArgumentException(
                     "İskonto tutarı satır brüt tutarından büyük olamaz: " + input.itemDescription());
         }
 
-        // gross = quantity × unitPrice
         BigDecimal gross = input.quantity()
                 .multiply(input.unitPriceOriginal())
                 .setScale(LINE_SCALE, LINE_ROUNDING);
 
-        // lineTotal = gross − discount  (iskonto zaten orijinal para biriminde)
         BigDecimal lineTotal = gross
                 .subtract(input.discountOriginal())
                 .setScale(LINE_SCALE, LINE_ROUNDING);
 
-        // taxAmount = lineTotal × (taxRate / 100)
-        BigDecimal taxAmount = lineTotal
-                .multiply(input.taxRate())
-                .divide(HUNDRED, LINE_SCALE, LINE_ROUNDING);
+        BigDecimal taxRate;
+        BigDecimal taxAmount;
+
+        if (input.taxRate() != null) {
+            taxRate = input.taxRate();
+            taxAmount = lineTotal
+                    .multiply(taxRate)
+                    .divide(HUNDRED, LINE_SCALE, LINE_ROUNDING);
+        } else {
+            TaxLookupService.TaxLineResult taxResult = taxLookupService.calculateLineTax(
+                    lineTotal,
+                    input.taxTypeCode(),
+                    countryId,
+                    locationId,
+                    customerId,
+                    input.productType(),
+                    input.operationType() != null ? input.operationType() : "INVOICE",
+                    rateDate);
+            taxRate = taxResult.rate() != null ? taxResult.rate() : BigDecimal.ZERO;
+            taxAmount = taxResult.tax().setScale(LINE_SCALE, LINE_ROUNDING);
+        }
 
         return InvoiceItemResultDto.builder()
                 .itemDescription(input.itemDescription())
                 .quantity(input.quantity())
                 .unitPriceOriginal(input.unitPriceOriginal())
                 .discountOriginal(input.discountOriginal())
-                .taxRate(input.taxRate())
+                .taxTypeCode(input.taxTypeCode())
+                .taxRate(taxRate)
                 .lineTotalOriginal(lineTotal)
                 .taxAmountOriginal(taxAmount)
                 .build();
     }
 
-    // -------------------------------------------------------------------------
-    // Rate-Lock validasyonu
-    // -------------------------------------------------------------------------
-
-    /**
-     * Onaylanmış faturalarda kur ve kur tarihi alanlarının güncellenmesini engeller.
-     *
-     * <p>Servis katmanında, fatura güncellemesi öncesinde çağrılır.
-     * JPA {@code @PreUpdate} listener yerine servis katmanında uygulanır;
-     * böylece business exception mesajı ve stack trace kontrol altında kalır.</p>
-     *
-     * @param current  veritabanındaki mevcut (kayıtlı) fatura entity'si
-     * @param incoming gelen güncelleme isteği (DTO veya entity)
-     * @throws RateLockViolationException fatura APPROVED durumundayken kur alanları
-     *         değiştirilmeye çalışılırsa fırlatılır
-     */
     public void assertRateLock(Invoice current, BigDecimal incomingRateValue, LocalDate incomingRateDate) {
         if (!isRateLocked(current.getStatus())) {
             return;
         }
 
-        // BigDecimal için compareTo kullanılır: equals() scale'e duyarlıdır ve
-        // 30.00 ile 30.000000 gibi sayısal olarak özdeş kurları "değişti" sayarak
-        // sahte rate-lock ihlali üretirdi.
         boolean rateChanged = current.getExchangeRateValue().compareTo(incomingRateValue) != 0;
         boolean dateChanged = !current.getExchangeRateDate().equals(incomingRateDate);
 

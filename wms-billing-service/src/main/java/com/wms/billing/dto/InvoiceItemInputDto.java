@@ -7,7 +7,8 @@ import java.math.BigDecimal;
 
 /**
  * Fatura satırı giriş DTO'su.
- * Servis katmanına ham veri olarak gelir; hesaplama servisi sonuçları buraya yazar.
+ * {@code taxTypeCode} ile finance vergi motorundan oran çözülür;
+ * {@code taxRate} doluysa manuel override kullanılır.
  */
 @Builder
 public record InvoiceItemInputDto(
@@ -25,10 +26,18 @@ public record InvoiceItemInputDto(
         BigDecimal discountOriginal,
 
         /**
-         * Vergi oranı yüzde cinsinden. Örn: 20.00 = %20.
-         * [0.00, 100.00] aralığında olmalıdır.
+         * Vergi tipi kodu (örn. KDV, VAT). Override yoksa finance motoru bu kodla oran çözer.
          */
-        @NotNull
+        @NotBlank(message = "Vergi tipi kodu zorunludur")
+        String taxTypeCode,
+
+        /**
+         * Opsiyonel manuel vergi oranı (%). Doluysa finance çağrısı atlanır.
+         */
         @DecimalMin(value = "0.00") @DecimalMax(value = "100.00")
-        BigDecimal taxRate
+        BigDecimal taxRate,
+
+        String productType,
+
+        String operationType
 ) {}

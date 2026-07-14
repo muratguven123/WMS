@@ -119,21 +119,23 @@ public class InvoiceMapper {
                 .rateAtPayment(log.getRateAtPayment())
                 .exchangeDifferenceAmount(log.getExchangeDifferenceAmount())
                 .actionTaken(log.getActionTaken())
+                .taxAmount(log.getTaxAmount())
+                .taxTypeCode(log.getTaxTypeCode())
                 .build();
     }
 
     private InvoiceItem toItemEntity(InvoiceItemResultDto line, Invoice invoice) {
-        InvoiceItem item = InvoiceItem.builder()
+        return InvoiceItem.builder()
                 .invoice(invoice)
                 .itemDescription(line.itemDescription())
                 .quantity(line.quantity())
                 .unitPriceOriginal(line.unitPriceOriginal())
                 .discountOriginal(line.discountOriginal())
                 .taxRate(line.taxRate())
+                .taxTypeCode(line.taxTypeCode())
                 .taxAmountOriginal(line.taxAmountOriginal())
                 .lineTotalOriginal(line.lineTotalOriginal())
                 .build();
-        return item;
     }
 
     private InvoiceItemResultDto toItemResult(InvoiceItem item) {
@@ -142,6 +144,7 @@ public class InvoiceMapper {
                 .quantity(item.getQuantity())
                 .unitPriceOriginal(item.getUnitPriceOriginal())
                 .discountOriginal(item.getDiscountOriginal())
+                .taxTypeCode(item.getTaxTypeCode())
                 .taxRate(item.getTaxRate())
                 .lineTotalOriginal(item.getLineTotalOriginal())
                 .taxAmountOriginal(item.getTaxAmountOriginal())

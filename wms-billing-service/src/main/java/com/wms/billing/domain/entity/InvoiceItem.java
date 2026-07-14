@@ -48,6 +48,10 @@ public class InvoiceItem {
     @Column(name = "tax_rate", nullable = false, precision = 5, scale = 2)
     private BigDecimal taxRate;
 
+    /** Finance vergi tipi kodu (örn. KDV). */
+    @Column(name = "tax_type_code", length = 32)
+    private String taxTypeCode;
+
     /** Hesaplanan vergi tutarı (işlem para birimi). */
     @Column(name = "tax_amount_original", nullable = false, precision = 18, scale = 4)
     private BigDecimal taxAmountOriginal;

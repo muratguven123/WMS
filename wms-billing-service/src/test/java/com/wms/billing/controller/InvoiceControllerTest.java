@@ -52,6 +52,7 @@ class InvoiceControllerTest {
                         .quantity(new BigDecimal("1"))
                         .unitPriceOriginal(new BigDecimal("100"))
                         .discountOriginal(BigDecimal.ZERO)
+                        .taxTypeCode("KDV")
                         .taxRate(new BigDecimal("20"))
                         .build()))
                 .build();

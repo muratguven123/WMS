@@ -13,5 +13,7 @@ public record ExchangeDifferenceResponse(
         BigDecimal originalPaidAmount,
         BigDecimal rateAtPayment,
         BigDecimal exchangeDifferenceAmount,
-        String actionTaken
+        String actionTaken,
+        BigDecimal taxAmount,
+        String taxTypeCode
 ) {}

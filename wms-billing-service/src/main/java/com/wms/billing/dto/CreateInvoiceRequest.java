@@ -22,6 +22,9 @@ public record CreateInvoiceRequest(
         @NotNull(message = "Kur tarihi zorunludur")
         LocalDate exchangeRateDate,
 
+        /** Ülke kimliği — vergi çözümlemesi için; yoksa billing.default-country-id */
+        Long countryId,
+
         @NotEmpty(message = "En az bir fatura satırı gereklidir")
         @Valid
         List<InvoiceItemInputDto> items
