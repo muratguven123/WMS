@@ -76,6 +76,20 @@ class StompSubscribeInterceptorTest {
                 "/queue/user.bbbbbbbb-0000-0000-0000-000000000002.tasks", user)).isFalse();
     }
 
+    @Test
+    @DisplayName("Org companies topic — WMS_ADMIN allowed")
+    void orgCompaniesTopic_adminAllowed() {
+        var user = jwtUser("aaaaaaaa-0000-0000-0000-000000000001", "ROLE_WMS_ADMIN");
+        assertThat(interceptor.isSubscriptionAllowed("/topic/org.companies", user)).isTrue();
+    }
+
+    @Test
+    @DisplayName("Org companies topic — PICKER denied")
+    void orgCompaniesTopic_pickerDenied() {
+        var user = jwtUser("aaaaaaaa-0000-0000-0000-000000000001", "ROLE_PICKER");
+        assertThat(interceptor.isSubscriptionAllowed("/topic/org.companies", user)).isFalse();
+    }
+
     private static JwtAuthenticationToken jwtUser(String sub, String... roles) {
         Jwt jwt = Jwt.withTokenValue("token")
                 .header("alg", "none")

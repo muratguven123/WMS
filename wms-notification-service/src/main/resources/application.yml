@@ -25,6 +25,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: com.wms.events
+        spring.json.value.default.type: com.wms.events.DomainEvent
       auto-offset-reset: earliest
     listener:
       auto-startup: true

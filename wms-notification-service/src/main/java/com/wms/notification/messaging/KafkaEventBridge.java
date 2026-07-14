@@ -25,7 +25,8 @@ public class KafkaEventBridge {
             KafkaTopics.TASK_ASSIGNED,
             KafkaTopics.TASK_PROGRESS,
             KafkaTopics.TASK_COMPLETED,
-            KafkaTopics.OPERATOR_STATUS_UPDATED
+            KafkaTopics.OPERATOR_STATUS_UPDATED,
+            KafkaTopics.COMPANY_CHANGED
     }, groupId = "${spring.kafka.consumer.group-id:wms-notification-service}")
     public void onDomainEvent(DomainEvent event) {
         log.info("Kafka event received: type={} companyId={}", event.eventType(), event.companyId());

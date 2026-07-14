@@ -30,6 +30,8 @@ public class StompSubscribeInterceptor implements ChannelInterceptor {
             Pattern.compile("^/topic/company\\." + TENANT_ID + "\\.location\\." + TENANT_ID + "\\..+");
     private static final Pattern COMPANY_ONLY =
             Pattern.compile("^/topic/company\\." + TENANT_ID + "\\..+");
+    private static final Pattern ORG_TOPIC =
+            Pattern.compile("^/topic/org\\..+");
     private static final Pattern USER_QUEUE =
             Pattern.compile("^/queue/user\\.([0-9a-fA-F-]{36})\\..+");
 
@@ -38,6 +40,8 @@ public class StompSubscribeInterceptor implements ChannelInterceptor {
 
     private static final Set<String> INTEGRATION_ROLES = Set.of(
             "ROLE_INTEGRATION_ADMIN", "ROLE_WMS_ADMIN");
+
+    private static final Set<String> ORG_ADMIN_ROLES = Set.of("ROLE_WMS_ADMIN");
 
     @Value("${wms.security.keycloak.client-id:wms-api}")
     private String keycloakClientId;
@@ -85,6 +89,11 @@ public class StompSubscribeInterceptor implements ChannelInterceptor {
             return hasAnyRole(user, INTEGRATION_ROLES);
         }
 
+        Matcher orgTopic = ORG_TOPIC.matcher(destination);
+        if (orgTopic.matches()) {
+            return hasAnyRole(user, ORG_ADMIN_ROLES);
+        }
+
         Matcher userQueue = USER_QUEUE.matcher(destination);
         if (userQueue.matches()) {
             String requestedUserId = userQueue.group(1);
@@ -105,12 +114,21 @@ public class StompSubscribeInterceptor implements ChannelInterceptor {
     }
 
     private boolean hasAnyRole(Principal user, Set<String> roles) {
-        if (user instanceof JwtAuthenticationToken jwtAuth) {
-            return jwtAuth.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .anyMatch(roles::contains);
+        if (!(user instanceof JwtAuthenticationToken jwtAuth)) {
+            return false;
         }
-        return false;
+        return jwtAuth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(authority -> {
+                    if (roles.contains(authority)) {
+                        return true;
+                    }
+                    // JWT'de ROLE_ öneki yoksa da eşleşsin
+                    String withPrefix = authority.startsWith("ROLE_")
+                            ? authority
+                            : "ROLE_" + authority;
+                    return roles.contains(withPrefix);
+                });
     }
 
     private boolean hasTenantHeaders(String companyId, String locationId) {

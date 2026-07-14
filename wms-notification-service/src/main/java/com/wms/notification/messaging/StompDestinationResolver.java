@@ -67,6 +67,7 @@ public class StompDestinationResolver {
                     destinations.add(StompDestinations.operators(event.companyId(), event.locationId()));
                 }
             }
+            case COMPANY_CHANGED -> destinations.add(StompDestinations.orgCompanies());
             default -> { }
         }
 
