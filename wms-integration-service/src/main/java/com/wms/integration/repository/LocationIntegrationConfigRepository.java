@@ -28,4 +28,12 @@ public interface LocationIntegrationConfigRepository extends JpaRepository<Locat
      * Sistem bazlı toplu işlemler (kur çekme, bakım penceresi vb.) için kullanılır.
      */
     List<LocationIntegrationConfig> findByIntegrationSystem_CodeAndIsActiveTrue(String erpCode);
+
+    @Query("""
+            SELECT c FROM LocationIntegrationConfig c
+            JOIN FETCH c.integrationSystem s
+            WHERE c.isActive = true
+              AND s.isActive = true
+            """)
+    List<LocationIntegrationConfig> findAllActiveWithSystem();
 }

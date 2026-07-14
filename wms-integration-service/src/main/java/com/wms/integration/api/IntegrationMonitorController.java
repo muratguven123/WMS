@@ -10,6 +10,7 @@ import com.wms.integration.service.IntegrationLogQueryService.IntegrationLogNotF
 import com.wms.integration.service.IntegrationRetryService;
 import com.wms.integration.service.IntegrationRetryService.OutboxMessageNotFoundException;
 import com.wms.integration.service.IntegrationRetryService.RetryNotAllowedException;
+import com.wms.integration.service.TaxInfoPullService;
 import com.wms.integration.repository.IntegrationLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,7 @@ public class IntegrationMonitorController {
     private final IntegrationLogQueryService logQueryService;
     private final IntegrationRetryService    retryService;
     private final IntegrationLogRepository   logRepository;
+    private final TaxInfoPullService         taxInfoPullService;
 
     // -----------------------------------------------------------------------
     // GET /api/integrations/logs
@@ -134,6 +136,29 @@ public class IntegrationMonitorController {
         return ResponseEntity.ok(Map.of(
                 "since",  since.toString(),
                 "counts", statusMap
+        ));
+    }
+
+    /**
+     * Tüm tanımlı entegrasyon iş kodlarını döner (Filtre ekranları için).
+     */
+    @GetMapping("/job-codes")
+    public ResponseEntity<List<String>> getJobCodes() {
+        return ResponseEntity.ok(com.wms.integration.outbox.OutboxMessageTypes.all());
+    }
+
+    /**
+     * TAX_INFO_PULL — tüm aktif lokasyonlar veya tek lokasyon için manuel vergi bilgisi çekimi.
+     */
+    @PostMapping("/tax-info/pull")
+    public ResponseEntity<Map<String, Object>> pullTaxInfo(
+            @RequestParam(required = false) Long locationId) {
+        int imported = locationId != null
+                ? taxInfoPullService.pullForLocationId(locationId)
+                : taxInfoPullService.pullAllActiveLocations();
+        return ResponseEntity.ok(Map.of(
+                "jobCode", "TAX_INFO_PULL",
+                "imported", imported
         ));
     }
 

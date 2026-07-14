@@ -38,6 +38,26 @@ public class IntegrationSystem extends BaseEntity {
     private String name;
 
     /**
+     * {@link com.wms.integration.entity.enums.ConnectionType#WEBHOOK} bağlantı
+     * tipinde Outbox mesajlarının POST edileceği hedef URL.
+     *
+     * <p>Yalnızca HTTPS adresleri önerilir; imzalama için {@link #webhookSecret}
+     * zorunludur.
+     */
+    @Column(name = "webhook_url", length = 500)
+    private String webhookUrl;
+
+    /**
+     * Webhook isteklerinin HMAC-SHA256 imzasında kullanılan paylaşımlı gizli anahtar.
+     *
+     * <p><b>Güvenlik notu:</b> Üretim ortamında bu alan Vault / AWS Secrets Manager
+     * referansı olarak saklanmalı; düz metin yazılmamalıdır
+     * ({@link LocationIntegrationConfig#getConnectionParams()} ile aynı politika).
+     */
+    @Column(name = "webhook_secret", length = 200)
+    private String webhookSecret;
+
+    /**
      * {@link LocationIntegrationConfig} ilişkisi — cascade/fetch lazy;
      * entity grafiği burada gerekli değil, referans bütünlüğü için tutulur.
      */

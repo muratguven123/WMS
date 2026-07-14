@@ -3,14 +3,23 @@ package com.wms.integration.outbox;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wms.integration.adapter.ErpAdapter;
 import com.wms.integration.adapter.ErpAdapterFactory;
+import com.wms.integration.adapter.dto.AccountingVoucherDto;
+import com.wms.integration.adapter.dto.CountResultDto;
+import com.wms.integration.adapter.dto.CustomerAccountDto;
 import com.wms.integration.adapter.dto.ErpResponse;
 import com.wms.integration.adapter.dto.InvoiceDto;
 import com.wms.integration.adapter.dto.MaterialDto;
 import com.wms.integration.adapter.dto.MovementDto;
+import com.wms.integration.adapter.dto.PurchaseOrderDto;
 import com.wms.integration.adapter.dto.ReceiptApprovalDto;
+import com.wms.integration.adapter.dto.ReturnNoticeDto;
+import com.wms.integration.adapter.dto.SalesOrderDto;
 import com.wms.integration.adapter.dto.ShipmentDispatchDto;
+import com.wms.integration.entity.LocationIntegrationConfig;
 import com.wms.integration.entity.OutboxMessage;
+import com.wms.integration.entity.enums.ConnectionType;
 import com.wms.integration.entity.enums.OutboxStatus;
+import com.wms.integration.repository.LocationIntegrationConfigRepository;
 import com.wms.integration.repository.OutboxMessageRepository;
 import com.wms.integration.service.IntegrationLogSyncService;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +29,18 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
+import java.util.Optional;
+
+import static com.wms.integration.outbox.OutboxMessageTypes.*;
 
 /**
  * Tek bir Outbox mesajını kendi transaction'ında işler.
  * Batch içinde bir mesajın hatası diğerlerinin commit'ini engellemez.
+ *
+ * <h3>Bağlantı Tipi Yönlendirmesi</h3>
+ * Lokasyonun aktif konfigürasyonu {@link ConnectionType#WEBHOOK} ise mesaj
+ * {@link WebhookDispatcher} ile HMAC imzalı POST olarak iletilir; diğer tüm
+ * tiplerde {@link ErpAdapterFactory} üzerinden çözülen adaptöre gidilir.
  */
 @Slf4j
 @Component
@@ -36,6 +53,8 @@ public class OutboxMessageProcessor {
     private final OutboxAlertService alertService;
     private final IntegrationLogSyncService logSyncService;
     private final ObjectMapper objectMapper;
+    private final LocationIntegrationConfigRepository configRepository;
+    private final WebhookDispatcher webhookDispatcher;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void process(Long messageId) {
@@ -51,8 +70,7 @@ public class OutboxMessageProcessor {
         outboxMessageRepository.save(message);
 
         try {
-            ErpAdapter adapter = erpAdapterFactory.getAdapter(message.getLocationId());
-            ErpResponse response = dispatch(adapter, message);
+            ErpResponse response = route(message);
 
             if (response.isSuccess()) {
                 handleSuccess(message, response);
@@ -72,18 +90,51 @@ public class OutboxMessageProcessor {
         }
     }
 
+    /**
+     * Bağlantı tipine göre mesajı webhook'a veya ERP adaptörüne yönlendirir.
+     *
+     * <p>Aktif config bulunamazsa adaptör yoluna düşülür;
+     * {@link ErpAdapterFactory} kendi anlamlı istisnasını fırlatır
+     * (mevcut davranış korunur — geriye dönük uyum).
+     */
+    private ErpResponse route(OutboxMessage message) {
+        Optional<LocationIntegrationConfig> config =
+                configRepository.findActiveByLocationId(message.getLocationId());
+
+        if (config.isPresent()
+                && config.get().getConnectionType() == ConnectionType.WEBHOOK) {
+            return webhookDispatcher.dispatch(message, config.get());
+        }
+
+        ErpAdapter adapter = erpAdapterFactory.getAdapter(message.getLocationId());
+        return dispatch(adapter, message);
+    }
+
     private ErpResponse dispatch(ErpAdapter adapter, OutboxMessage message) {
         return switch (message.getJobCode()) {
-            case "STOCK_MOVE" -> adapter.sendInventoryMovement(
+            case STOCK_MOVE -> adapter.sendInventoryMovement(
                     deserialize(message.getPayload(), MovementDto.class));
-            case "INVOICE_SYNC" -> adapter.sendInvoice(
+            case INVOICE_SYNC -> adapter.sendInvoice(
                     deserialize(message.getPayload(), InvoiceDto.class));
-            case "MAT_SYNC" -> adapter.sendMaterialCard(
+            case MAT_SYNC -> adapter.sendMaterialCard(
                     deserialize(message.getPayload(), MaterialDto.class));
-            case "RECEIPT_SYNC" -> adapter.sendGoodsReceipt(
+            case RECEIPT_SYNC -> adapter.sendGoodsReceipt(
                     deserialize(message.getPayload(), ReceiptApprovalDto.class));
-            case "SHIPMENT_SYNC" -> adapter.sendShipmentDispatch(
+            case SHIPMENT_SYNC -> adapter.sendShipmentDispatch(
                     deserialize(message.getPayload(), ShipmentDispatchDto.class));
+            // -- İş isteri 7.4 — yeni senaryolar --------------------------------
+            case CUSTOMER_SYNC -> adapter.sendCustomerAccount(
+                    deserialize(message.getPayload(), CustomerAccountDto.class));
+            case PURCHASE_ORDER_SYNC -> adapter.sendPurchaseOrder(
+                    deserialize(message.getPayload(), PurchaseOrderDto.class));
+            case SALES_ORDER_SYNC -> adapter.sendSalesOrder(
+                    deserialize(message.getPayload(), SalesOrderDto.class));
+            case RETURN_SYNC -> adapter.sendReturnNotice(
+                    deserialize(message.getPayload(), ReturnNoticeDto.class));
+            case COUNT_SYNC -> adapter.sendCountResult(
+                    deserialize(message.getPayload(), CountResultDto.class));
+            case VOUCHER_SYNC -> adapter.sendAccountingVoucher(
+                    deserialize(message.getPayload(), AccountingVoucherDto.class));
             default -> ErpResponse.failure("UNKNOWN_JOB",
                     "No handler for jobCode: " + message.getJobCode());
         };

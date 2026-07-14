@@ -1,6 +1,7 @@
 package com.wms.integration.entity;
 
 import com.wms.integration.entity.enums.ConnectionType;
+import com.wms.integration.entity.enums.FileFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -60,8 +61,18 @@ public class LocationIntegrationConfig extends BaseEntity {
     private IntegrationSystem integrationSystem;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "connection_type", nullable = false, length = 10)
+    @Column(name = "connection_type", nullable = false, length = 20)
     private ConnectionType connectionType;
+
+    /**
+     * Dosya bazlı bağlantı tiplerinde (özellikle {@link ConnectionType#SFTP})
+     * üretilecek dosyanın biçimi. Diğer bağlantı tiplerinde {@code null}
+     * bırakılabilir; adaptörler {@code null} durumunda kendi varsayılanını
+     * (Logo: CSV/XML) kullanır.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "file_format", length = 10)
+    private FileFormat fileFormat;
 
     /**
      * Bağlantı parametreleri — PostgreSQL JSONB.

@@ -106,6 +106,117 @@ public class LogoAdapter implements ErpAdapter {
     }
 
     // -----------------------------------------------------------------------
+    // İş isteri 7.4 — ek senaryolar (en kritik ikisi: cari hesap + muhasebe fişi;
+    // kalanlar default NOT_IMPLEMENTED olarak arayüzden gelir)
+    // -----------------------------------------------------------------------
+
+    @Override
+    public ErpResponse sendCustomerAccount(CustomerAccountDto customerAccount) {
+        String fileName = "CUSTOMER_" + customerAccount.getCustomerCode() + "_"
+                + LocalDate.now().format(DATE_FMT) + ".csv";
+        String csv = buildCustomerAccountCsv(customerAccount);
+
+        log.info("[Logo] sendCustomerAccount -> customerCode={}, file={}",
+                customerAccount.getCustomerCode(), fileName);
+        return uploadViaSftp(fileName, csv.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public ErpResponse sendAccountingVoucher(AccountingVoucherDto voucher) {
+        String fileName = "VOUCHER_" + voucher.getVoucherType() + "_"
+                + voucher.getVoucherDate().format(DATE_FMT) + "_"
+                + LocalDate.now().format(DATE_FMT) + ".xml";
+        String xml = buildVoucherXml(voucher);
+
+        log.info("[Logo] sendAccountingVoucher -> voucherType={}, file={}",
+                voucher.getVoucherType(), fileName);
+        return uploadViaSftp(fileName, xml.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public ErpResponse sendGoodsReceipt(ReceiptApprovalDto receipt) {
+        String fileName = "GR_" + receipt.getReceiptNumber() + "_" + LocalDate.now().format(DATE_FMT) + ".xml";
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <GoodsReceipt>
+                    <ReceiptNumber>%s</ReceiptNumber>
+                    <WarehouseLocationId>%s</WarehouseLocationId>
+                    <ItemCount>%d</ItemCount>
+                </GoodsReceipt>
+                """.formatted(
+                receipt.getReceiptNumber(),
+                receipt.getWarehouseLocationId(),
+                receipt.getApprovedItems() != null ? receipt.getApprovedItems().size() : 0);
+        return uploadViaSftp(fileName, xml.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public ErpResponse sendShipmentDispatch(ShipmentDispatchDto shipment) {
+        String fileName = "SH_" + shipment.getShipmentNumber() + "_" + LocalDate.now().format(DATE_FMT) + ".xml";
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <ShipmentDispatch>
+                    <ShipmentNumber>%s</ShipmentNumber>
+                    <WarehouseLocationId>%s</WarehouseLocationId>
+                    <BoxCount>%d</BoxCount>
+                </ShipmentDispatch>
+                """.formatted(
+                shipment.getShipmentNumber(),
+                shipment.getWarehouseLocationId(),
+                shipment.getBoxSsccNumbers() != null ? shipment.getBoxSsccNumbers().size() : 0);
+        return uploadViaSftp(fileName, xml.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public ErpResponse sendPurchaseOrder(PurchaseOrderDto purchaseOrder) {
+        String fileName = "PO_" + purchaseOrder.getOrderNumber() + "_" + LocalDate.now().format(DATE_FMT) + ".csv";
+        String csv = "OrderNumber;LineCount\n"
+                + purchaseOrder.getOrderNumber() + ";"
+                + (purchaseOrder.getLines() != null ? purchaseOrder.getLines().size() : 0) + "\n";
+        return uploadViaSftp(fileName, csv.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public ErpResponse sendSalesOrder(SalesOrderDto salesOrder) {
+        String fileName = "SO_" + salesOrder.getOrderNumber() + "_" + LocalDate.now().format(DATE_FMT) + ".csv";
+        String csv = "OrderNumber;LineCount\n"
+                + salesOrder.getOrderNumber() + ";"
+                + (salesOrder.getLines() != null ? salesOrder.getLines().size() : 0) + "\n";
+        return uploadViaSftp(fileName, csv.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public ErpResponse sendReturnNotice(ReturnNoticeDto returnNotice) {
+        String fileName = "RET_" + returnNotice.getReferenceOrderNumber() + "_"
+                + LocalDate.now().format(DATE_FMT) + ".csv";
+        String csv = "ReferenceOrder;Reason\n"
+                + returnNotice.getReferenceOrderNumber() + ";"
+                + (returnNotice.getReturnReason() != null ? returnNotice.getReturnReason() : "") + "\n";
+        return uploadViaSftp(fileName, csv.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public ErpResponse sendCountResult(CountResultDto countResult) {
+        String fileName = "CNT_" + countResult.getCountId() + "_" + LocalDate.now().format(DATE_FMT) + ".csv";
+        String csv = "CountId;LineCount\n"
+                + countResult.getCountId() + ";"
+                + (countResult.getLines() != null ? countResult.getLines().size() : 0) + "\n";
+        return uploadViaSftp(fileName, csv.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public List<TaxInfoDto> fetchTaxInfo() {
+        log.info("[Logo] fetchTaxInfo -> mock tax rates returned");
+        return List.of(
+                TaxInfoDto.builder()
+                        .companyId(1L).locationId(1L)
+                        .taxTypeCode("KDV").rate(new BigDecimal("20"))
+                        .countryCode("TR").validFrom(LocalDate.of(2024, 1, 1))
+                        .build()
+        );
+    }
+
+    // -----------------------------------------------------------------------
     // SFTP transfer
     // -----------------------------------------------------------------------
 
@@ -191,6 +302,60 @@ public class LogoAdapter implements ErpAdapter {
                 dto.getUnit(),
                 dto.getMovementDate(),
                 dto.getReferenceDocumentNo() != null ? dto.getReferenceDocumentNo() : ""
+        );
+    }
+
+    /** Logo cari kart import CSV formatı (Logo import şablonuna göre genişletilmeli). */
+    private String buildCustomerAccountCsv(CustomerAccountDto dto) {
+        return "CustomerCode;Name;TaxNumber;Currency;Address;CompanyId;LocationId\n"
+                + dto.getCustomerCode() + ";"
+                + dto.getName() + ";"
+                + (dto.getTaxNumber() != null ? dto.getTaxNumber() : "") + ";"
+                + (dto.getCurrencyCode() != null ? dto.getCurrencyCode() : "") + ";"
+                + (dto.getAddress() != null ? dto.getAddress().replace(';', ',') : "") + ";"
+                + dto.getCompanyId() + ";"
+                + dto.getLocationId() + "\n";
+    }
+
+    /** Logo muhasebe fişi import XML formatı. */
+    private String buildVoucherXml(AccountingVoucherDto dto) {
+        StringBuilder lines = new StringBuilder();
+        if (dto.getLines() != null) {
+            for (VoucherLineDto line : dto.getLines()) {
+                lines.append("""
+                            <Line>
+                                <AccountCode>%s</AccountCode>
+                                <Debit>%s</Debit>
+                                <Credit>%s</Credit>
+                                <Currency>%s</Currency>
+                                <ExchangeRate>%s</ExchangeRate>
+                            </Line>
+                        """.formatted(
+                        line.getAccountCode(),
+                        line.getDebit()        != null ? line.getDebit()        : BigDecimal.ZERO,
+                        line.getCredit()       != null ? line.getCredit()       : BigDecimal.ZERO,
+                        line.getCurrencyCode() != null ? line.getCurrencyCode() : "",
+                        line.getExchangeRate() != null ? line.getExchangeRate() : BigDecimal.ONE
+                ));
+            }
+        }
+        return """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <AccountingVoucher>
+                    <VoucherType>%s</VoucherType>
+                    <VoucherDate>%s</VoucherDate>
+                    <CompanyId>%d</CompanyId>
+                    <LocationId>%d</LocationId>
+                    <Lines>
+                %s
+                    </Lines>
+                </AccountingVoucher>
+                """.formatted(
+                dto.getVoucherType(),
+                dto.getVoucherDate(),
+                dto.getCompanyId(),
+                dto.getLocationId(),
+                lines
         );
     }
 

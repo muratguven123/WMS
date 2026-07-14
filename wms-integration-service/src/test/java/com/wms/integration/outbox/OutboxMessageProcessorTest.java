@@ -51,6 +51,8 @@ class OutboxMessageProcessorTest {
     @Mock private ErpAdapter erpAdapter;
     @Mock private OutboxAlertService alertService;
     @Mock private IntegrationLogSyncService logSyncService;
+    @Mock private com.wms.integration.repository.LocationIntegrationConfigRepository configRepository;
+    @Mock private com.wms.integration.outbox.WebhookDispatcher webhookDispatcher;
 
     private OutboxMessageProcessor processor;
     private OutboxMessage message;
@@ -64,7 +66,8 @@ class OutboxMessageProcessorTest {
 
         processor = new OutboxMessageProcessor(
                 outboxMessageRepository, erpAdapterFactory, retryPolicy,
-                alertService, logSyncService, new ObjectMapper());
+                alertService, logSyncService, new ObjectMapper(),
+                configRepository, webhookDispatcher);
 
         message = OutboxMessage.builder()
                 .jobCode("STOCK_MOVE")
@@ -75,10 +78,12 @@ class OutboxMessageProcessorTest {
                 .build();
         message.setId(MESSAGE_ID);
 
-        when(outboxMessageRepository.findById(MESSAGE_ID)).thenReturn(Optional.of(message));
-        when(erpAdapterFactory.getAdapter(LOCATION_ID)).thenReturn(erpAdapter);
-        when(erpAdapter.sendInventoryMovement(any()))
+        org.mockito.Mockito.lenient().when(outboxMessageRepository.findById(MESSAGE_ID)).thenReturn(Optional.of(message));
+        org.mockito.Mockito.lenient().when(erpAdapterFactory.getAdapter(LOCATION_ID)).thenReturn(erpAdapter);
+        org.mockito.Mockito.lenient().when(erpAdapter.sendInventoryMovement(any()))
                 .thenThrow(new RuntimeException("ERP connection refused"));
+        org.mockito.Mockito.lenient().when(configRepository.findActiveByLocationId(any()))
+                .thenReturn(Optional.empty());
     }
 
     // =====================================================================
@@ -146,6 +151,34 @@ class OutboxMessageProcessorTest {
         verify(logSyncService, times(2)).onOutboxRetryableFailure(message);
         verify(logSyncService, times(1)).onOutboxPermanentFailure(message);
     }
+
+    // =====================================================================
+    // Webhook Yönlendirme Testi
+    // =====================================================================
+
+    @Test
+    @DisplayName("Webhook bağlantı tipi olduğunda WebhookDispatcher'a yönlendirir")
+    void route_whenWebhookConnectionType_dispatchesToWebhookDispatcher() {
+        com.wms.integration.entity.enums.ConnectionType connectionType = com.wms.integration.entity.enums.ConnectionType.WEBHOOK;
+        com.wms.integration.entity.LocationIntegrationConfig config = com.wms.integration.entity.LocationIntegrationConfig.builder()
+                .locationId(LOCATION_ID)
+                .connectionType(connectionType)
+                .build();
+
+        when(configRepository.findActiveByLocationId(LOCATION_ID)).thenReturn(Optional.of(config));
+
+        com.wms.integration.adapter.dto.ErpResponse webhookResponse = com.wms.integration.adapter.dto.ErpResponse.success(
+                "WEBHOOK-REF-123", "Webhook sync OK");
+        when(webhookDispatcher.dispatch(message, config)).thenReturn(webhookResponse);
+
+        processor.process(MESSAGE_ID);
+
+        verify(webhookDispatcher).dispatch(message, config);
+        verify(logSyncService).onOutboxSuccess(message, webhookResponse);
+        assertThat(message.getStatus()).isEqualTo(OutboxStatus.COMPLETED);
+        assertThat(message.getExternalReference()).isEqualTo("WEBHOOK-REF-123");
+    }
+
 
     // =====================================================================
     // Yardımcı — @Value alanlarını testte doldurur

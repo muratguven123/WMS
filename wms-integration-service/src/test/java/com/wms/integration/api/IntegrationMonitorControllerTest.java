@@ -40,6 +40,7 @@ class IntegrationMonitorControllerTest {
     @MockBean private IntegrationLogQueryService logQueryService;
     @MockBean private IntegrationRetryService retryService;
     @MockBean private IntegrationLogRepository logRepository;
+    @MockBean private com.wms.integration.service.TaxInfoPullService taxInfoPullService;
 
     @Test
     @DisplayName("GET /api/integrations/logs — sayfalı log listesi döner")
@@ -118,5 +119,15 @@ class IntegrationMonitorControllerTest {
         mockMvc.perform(post("/api/integrations/logs/{logId}/retry", logId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("IntegrationLog not found: id=" + logId));
+    }
+
+    @Test
+    @DisplayName("GET /api/integrations/job-codes — tüm iş kodlarını döner")
+    void getJobCodes_returnsAllJobCodes() throws Exception {
+        mockMvc.perform(get("/api/integrations/job-codes"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(com.wms.integration.outbox.OutboxMessageTypes.all().size()))
+                .andExpect(jsonPath("$[0]").value("STOCK_MOVE"));
     }
 }
