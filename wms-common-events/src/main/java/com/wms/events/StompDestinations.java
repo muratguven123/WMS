@@ -36,4 +36,9 @@ public final class StompDestinations {
     public static String operators(Long companyId, Long locationId) {
         return "/topic/company." + companyId + ".location." + locationId + ".operators";
     }
+
+    /** Organizasyonel firma değişiklikleri (admin / org hierarchy yenileme). */
+    public static String orgCompanies() {
+        return "/topic/org.companies";
+    }
 }

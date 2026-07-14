@@ -12,6 +12,7 @@ public final class KafkaTopics {
     public static final String TASK_COMPLETED = "wms.outbound.task.completed";
     public static final String OPERATOR_STATUS_UPDATED = "wms.outbound.operator.status";
     public static final String LOCATION_PROVISIONED = "wms.core.location.provisioned";
+    public static final String COMPANY_CHANGED = "wms.core.company.changed";
 
     private KafkaTopics() {
     }
