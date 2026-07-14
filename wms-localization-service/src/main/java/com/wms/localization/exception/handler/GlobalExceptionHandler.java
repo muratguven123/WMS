@@ -126,4 +126,64 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(ex.getStatus()).body(body);
     }
+
+    @ExceptionHandler(com.wms.localization.exception.notification.NotificationTemplateNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotificationTemplateNotFound(
+            com.wms.localization.exception.notification.NotificationTemplateNotFoundException ex,
+            HttpServletRequest request) {
+
+        ErrorResponse body = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                "TEMPLATE_NOT_FOUND",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(com.wms.localization.exception.notification.TemplateContentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleTemplateContentNotFound(
+            com.wms.localization.exception.notification.TemplateContentNotFoundException ex,
+            HttpServletRequest request) {
+
+        ErrorResponse body = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                "TEMPLATE_CONTENT_NOT_FOUND",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(com.wms.localization.exception.notification.PlaceholderResolutionException.class)
+    public ResponseEntity<ErrorResponse> handlePlaceholderResolution(
+            com.wms.localization.exception.notification.PlaceholderResolutionException ex,
+            HttpServletRequest request) {
+
+        ErrorResponse body = new ErrorResponse(
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(),
+                "UNRESOLVED_PLACEHOLDER",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(body);
+    }
+
+    @ExceptionHandler(com.wms.localization.exception.notification.NotificationTemplateConflictException.class)
+    public ResponseEntity<ErrorResponse> handleNotificationTemplateConflict(
+            com.wms.localization.exception.notification.NotificationTemplateConflictException ex,
+            HttpServletRequest request) {
+
+        ErrorResponse body = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                "TEMPLATE_CONFLICT",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
 }

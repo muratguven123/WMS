@@ -1711,6 +1711,150 @@
     "common.productName": {
       "tr": "Ürün Adı",
       "en": "Product Name"
+    },
+    "nav.companyMgmt": {
+      "tr": "Firma Yönetimi",
+      "en": "Company Management"
+    },
+    "company.title": {
+      "tr": "Firma Yönetimi",
+      "en": "Company Management"
+    },
+    "company.subtitle": {
+      "tr": "Organizasyon altındaki firmaları ekleyin, güncelleyin ve pasifleştirin",
+      "en": "Create, update and deactivate companies under organizations"
+    },
+    "company.newCompany": {
+      "tr": "Yeni Firma",
+      "en": "New Company"
+    },
+    "company.organization": {
+      "tr": "Organizasyon",
+      "en": "Organization"
+    },
+    "company.selectOrg": {
+      "tr": "Organizasyon seçin",
+      "en": "Select organization"
+    },
+    "company.name": {
+      "tr": "Firma Adı",
+      "en": "Company Name"
+    },
+    "company.taxNumber": {
+      "tr": "Vergi Numarası",
+      "en": "Tax Number"
+    },
+    "company.taxHint": {
+      "tr": "5-50 harf/rakam",
+      "en": "5-50 letters/digits"
+    },
+    "company.taxOffice": {
+      "tr": "Vergi Dairesi",
+      "en": "Tax Office"
+    },
+    "company.create": {
+      "tr": "Oluştur",
+      "en": "Create"
+    },
+    "company.companies": {
+      "tr": "Firmalar",
+      "en": "Companies"
+    },
+    "company.active": {
+      "tr": "Aktif",
+      "en": "Active"
+    },
+    "company.inactive": {
+      "tr": "Pasif",
+      "en": "Inactive"
+    },
+    "company.edit": {
+      "tr": "Düzenle",
+      "en": "Edit"
+    },
+    "company.editTitle": {
+      "tr": "Firma Düzenle",
+      "en": "Edit Company"
+    },
+    "company.deactivate": {
+      "tr": "Pasifleştir",
+      "en": "Deactivate"
+    },
+    "company.reactivate": {
+      "tr": "Yeniden Aktifleştir",
+      "en": "Reactivate"
+    },
+    "company.confirmTitle": {
+      "tr": "Pasifleştirme Onayı",
+      "en": "Deactivation Confirmation"
+    },
+    "company.usageInfo": {
+      "tr": "Aktif depo: {locations}, kullanıcı yetkisi: {users}, işlem günlüğü: {tx}.",
+      "en": "Active warehouses: {locations}, user accesses: {users}, transaction logs: {tx}."
+    },
+    "company.usageBlocked": {
+      "tr": "Aktif bağımlılık olduğu için pasifleştirilemez.",
+      "en": "Cannot deactivate while active dependencies exist."
+    },
+    "company.usageOk": {
+      "tr": "Bağımlılık yok; pasifleştirme güvenli.",
+      "en": "No blocking dependencies; safe to deactivate."
+    },
+    "company.confirm": {
+      "tr": "Onayla",
+      "en": "Confirm"
+    },
+    "company.cancel": {
+      "tr": "Vazgeç",
+      "en": "Cancel"
+    },
+    "company.created": {
+      "tr": "Firma oluşturuldu.",
+      "en": "Company created."
+    },
+    "company.updated": {
+      "tr": "Firma güncellendi.",
+      "en": "Company updated."
+    },
+    "company.deactivated": {
+      "tr": "Firma pasifleştirildi.",
+      "en": "Company deactivated."
+    },
+    "company.reactivated": {
+      "tr": "Firma yeniden aktifleştirildi.",
+      "en": "Company reactivated."
+    },
+    "company.empty": {
+      "tr": "Kayıt yok.",
+      "en": "No records."
+    },
+    "company.validation": {
+      "tr": "Firma adı ve geçerli vergi numarası zorunludur.",
+      "en": "Company name and a valid tax number are required."
+    },
+    "company.listInvalid": {
+      "tr": "Firma listesi beklenen formatta değil (proxy/API yanıtını kontrol edin).",
+      "en": "Company list is not in the expected format (check proxy/API response)."
+    },
+    "columns.company.name": {
+      "tr": "Firma",
+      "en": "Company"
+    },
+    "columns.company.organization": {
+      "tr": "Organizasyon",
+      "en": "Organization"
+    },
+    "columns.company.taxNumber": {
+      "tr": "Vergi No",
+      "en": "Tax No"
+    },
+    "columns.company.taxOffice": {
+      "tr": "Vergi Dairesi",
+      "en": "Tax Office"
+    },
+    "columns.company.locationCount": {
+      "tr": "Depo",
+      "en": "Warehouses"
     }
   }
 }
