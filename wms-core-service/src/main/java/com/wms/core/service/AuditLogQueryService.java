@@ -19,7 +19,10 @@ public class AuditLogQueryService {
     @Transactional(readOnly = true)
     public Page<AuditLogEntryDto> search(String entityName, Long changedByUserId, Pageable pageable) {
         Page<ConfigurationAuditLog> page;
-        if (entityName != null && !entityName.isBlank()) {
+        if (entityName != null && !entityName.isBlank() && changedByUserId != null) {
+            page = auditLogRepository.findByEntityNameContainingIgnoreCaseAndChangedByUserIdOrderByChangedAtDesc(
+                    entityName.trim(), changedByUserId, pageable);
+        } else if (entityName != null && !entityName.isBlank()) {
             page = auditLogRepository.findByEntityNameContainingIgnoreCaseOrderByChangedAtDesc(
                     entityName.trim(), pageable);
         } else if (changedByUserId != null) {

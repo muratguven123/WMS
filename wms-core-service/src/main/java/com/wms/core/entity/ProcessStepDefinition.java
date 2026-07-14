@@ -1,5 +1,7 @@
 package com.wms.core.entity;
 
+import com.wms.core.entity.audit.ProcessStepDefinitionSnapshot;
+import com.wms.core.entity.listener.ProcessStepDefinitionAuditListener;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,12 +18,16 @@ import lombok.*;
         name = "uk_step_def_process_code",
         columnNames = {"process_definition_id", "code"})
 )
+@EntityListeners(ProcessStepDefinitionAuditListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ProcessStepDefinition extends BaseEntity {
+
+    @Transient
+    private ProcessStepDefinitionSnapshot auditSnapshot;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(

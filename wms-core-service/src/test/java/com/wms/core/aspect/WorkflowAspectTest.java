@@ -18,12 +18,12 @@ import com.wms.core.security.TenantContext;
 import com.wms.core.security.TenantContextHolder;
 import com.wms.core.service.ApprovalRequestService;
 import com.wms.core.service.QuarantineService;
+import com.wms.core.service.WorkflowEnforcementService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -77,18 +77,21 @@ class WorkflowAspectTest {
     @Mock private ApprovalRequestService approvalRequestService;
     @Mock private QuarantineService quarantineService;
 
-    @InjectMocks
     private WorkflowAspect workflowAspect;
-
     private ReceivingWorkflowService target;
     private ReceivingWorkflowService proxy;
 
     @BeforeEach
     void setUp() {
-        // Aspect, tenant bilgisini ThreadLocal'den okur
         TenantContextHolder.setContext(new TenantContext(USER_ID, COMPANY_ID, LOCATION_ID));
 
-        // Gerçek pointcut weaving: dummy servis + aspect → CGLIB proxy
+        WorkflowEnforcementService enforcementService = new WorkflowEnforcementService(
+                locationProcessConfigRepository,
+                locationProcessStepConfigRepository,
+                userAccessRepository,
+                approvalRequestService);
+        workflowAspect = new WorkflowAspect(enforcementService, quarantineService);
+
         target = new ReceivingWorkflowService();
         AspectJProxyFactory factory = new AspectJProxyFactory(target);
         factory.addAspect(workflowAspect);
@@ -214,6 +217,19 @@ class WorkflowAspectTest {
         assertThat(proxy.failingStep()).isNull();
         assertThat(target.executionCount).isEqualTo(1);
         verifyNoInteractions(quarantineService, approvalRequestService);
+    }
+
+    @Test
+    @DisplayName("Adım pasif (LocationProcessStepConfig bulunamadı) → aspect bypass edilir, metot normal çalışır")
+    void passiveStep_bypassesAspect() {
+        when(locationProcessConfigRepository.findActiveByLocationId(LOCATION_ID))
+                .thenReturn(List.of());
+
+        String result = proxy.completeQc();
+
+        assertThat(result).isEqualTo("OK");
+        assertThat(target.executionCount).isEqualTo(1);
+        verifyNoInteractions(userAccessRepository, approvalRequestService, quarantineService);
     }
 
     // =====================================================================

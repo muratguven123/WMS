@@ -85,7 +85,8 @@ class DynamicUiControllerTest {
         );
 
         when(uiContextFactory.fromTenant(
-                eq(LOCATION_ID), eq(COMPANY_ID), eq(roleId), eq(countryId), eq("CREATE")))
+                eq(LOCATION_ID), eq(COMPANY_ID), eq(roleId), eq(countryId), eq("CREATE"),
+                eq(null), eq(null), eq(null), eq(null)))
                 .thenReturn(context);
         when(dynamicUiService.getResolvedScreen(eq("REC_CONTROL_FORM"), eq(context)))
                 .thenReturn(schema);
@@ -117,7 +118,8 @@ class DynamicUiControllerTest {
         );
 
         when(uiContextFactory.fromTenant(
-                eq(LOCATION_ID), eq(COMPANY_ID), eq(roleId), eq(null), eq(null)))
+                eq(LOCATION_ID), eq(COMPANY_ID), eq(roleId), eq(null), eq(null),
+                eq(null), eq(null), eq(null), eq(null)))
                 .thenReturn(context);
         when(dynamicTableUiService.getResolvedTableSchema(eq("ADDRESS_LIST"), eq(context)))
                 .thenReturn(schema);

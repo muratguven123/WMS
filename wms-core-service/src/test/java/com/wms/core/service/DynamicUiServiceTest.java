@@ -202,6 +202,114 @@ class DynamicUiServiceTest {
         verify(valueOperations,  times(2)).get(anyString());
     }
 
+    // =====================================================================
+    // Yeni Boyutlar ve Öncelik Testleri (İş İsteri 2.1, Madde 8.3)
+    // =====================================================================
+
+    @Test
+    @DisplayName("(a) Çoklu eşleşmede dolu boyut sayısı (spesifiklik) yüksek olan kural kazanır: Location+Warehouse > Location")
+    void resolve_specificityLocationAndWarehouseWinsOverLocationOnly() {
+        stubCacheMiss();
+        stubScreenWithFields();
+
+        // Location-only kuralı (Priority 50, MANDATORY, spesifiklik = 1)
+        // Location+Warehouse kuralı (Priority 10, HIDDEN, spesifiklik = 2)
+        // Spesifiklik önceliklidir; location+warehouse (HIDDEN) kazanmalı.
+        ScreenField taxField = ScreenField.builder().fieldKey("tax_number").build();
+        taxField.setId(FIELD_TAX_ID);
+
+        FieldBehaviorRule locationRule = FieldBehaviorRule.builder()
+                .id(1L)
+                .screenField(taxField)
+                .priority(50)
+                .locationId(LOCATION_ISTANBUL)
+                .behavior(FieldBehavior.MANDATORY)
+                .build();
+
+        FieldBehaviorRule locationWarehouseRule = FieldBehaviorRule.builder()
+                .id(2L)
+                .screenField(taxField)
+                .priority(10)
+                .locationId(LOCATION_ISTANBUL)
+                .warehouseId(5L)
+                .behavior(FieldBehavior.HIDDEN)
+                .build();
+
+        when(ruleRepository.findAllByScreenCode("REC_CONTROL_FORM"))
+                .thenReturn(List.of(locationRule, locationWarehouseRule));
+
+        // Bağlamda hem lokasyon hem depo var
+        UiContext ctx = new UiContext(LOCATION_ISTANBUL, null, null, null, "CREATE", 5L, null, null, null);
+        ResolvedScreenDto result = dynamicUiService.getResolvedScreen("REC_CONTROL_FORM", ctx);
+
+        assertThat(findField(result, "tax_number").behavior()).isEqualTo(FieldBehavior.HIDDEN);
+    }
+
+    @Test
+    @DisplayName("(b) customerType null vs dolu: dolu olan kural eşleşiyorsa kazanır, farklı ise null/global kural kazanır")
+    void resolve_customerTypeSpecificVsNull() {
+        stubCacheMiss();
+        stubScreenWithFields();
+
+        // Global/null customerType kuralı (MANDATORY, spesifiklik = 0)
+        // RETAIL customerType kuralı (HIDDEN, spesifiklik = 1)
+        ScreenField taxField = ScreenField.builder().fieldKey("tax_number").build();
+        taxField.setId(FIELD_TAX_ID);
+
+        FieldBehaviorRule globalRule = FieldBehaviorRule.builder()
+                .id(1L)
+                .screenField(taxField)
+                .priority(10)
+                .behavior(FieldBehavior.MANDATORY)
+                .build();
+
+        FieldBehaviorRule retailRule = FieldBehaviorRule.builder()
+                .id(2L)
+                .screenField(taxField)
+                .priority(36)
+                .customerType("RETAIL")
+                .behavior(FieldBehavior.HIDDEN)
+                .build();
+
+        when(ruleRepository.findAllByScreenCode("REC_CONTROL_FORM"))
+                .thenReturn(List.of(globalRule, retailRule));
+
+        // Durum 1: Context customerType = RETAIL -> Specific rule (HIDDEN) wins
+        UiContext retailCtx = new UiContext(null, null, null, null, "CREATE", null, "RETAIL", null, null);
+        ResolvedScreenDto retailResult = dynamicUiService.getResolvedScreen("REC_CONTROL_FORM", retailCtx);
+        assertThat(findField(retailResult, "tax_number").behavior()).isEqualTo(FieldBehavior.HIDDEN);
+
+        // Durum 2: Context customerType = WHOLESALE -> Specific rule mismatches, global rule (MANDATORY) wins
+        UiContext wholesaleCtx = new UiContext(null, null, null, null, "CREATE", null, "WHOLESALE", null, null);
+        ResolvedScreenDto wholesaleResult = dynamicUiService.getResolvedScreen("REC_CONTROL_FORM", wholesaleCtx);
+        assertThat(findField(wholesaleResult, "tax_number").behavior()).isEqualTo(FieldBehavior.MANDATORY);
+    }
+
+    @Test
+    @DisplayName("(c) cache key ayrışması: farklı bağlam boyutları farklı cache key'leri üretir")
+    void resolve_cacheKeySeparationForNewDimensions() {
+        stubCacheMiss();
+        stubScreenWithFields();
+        when(ruleRepository.findAllByScreenCode("REC_CONTROL_FORM")).thenReturn(List.of());
+
+        // Context 1: warehouse 5, customerType RETAIL
+        UiContext ctx1 = new UiContext(LOCATION_ISTANBUL, null, null, null, "CREATE", 5L, "RETAIL", null, null);
+        dynamicUiService.getResolvedScreen("REC_CONTROL_FORM", ctx1);
+        String expectedKey1 = "ui:REC_CONTROL_FORM:" + ctx1.cacheKeySuffix();
+        verify(valueOperations).get(expectedKey1);
+
+        // Context 2: warehouse 5, customerType WHOLESALE
+        UiContext ctx2 = new UiContext(LOCATION_ISTANBUL, null, null, null, "CREATE", 5L, "WHOLESALE", null, null);
+        dynamicUiService.getResolvedScreen("REC_CONTROL_FORM", ctx2);
+        String expectedKey2 = "ui:REC_CONTROL_FORM:" + ctx2.cacheKeySuffix();
+        verify(valueOperations).get(expectedKey2);
+
+        // Cache key'lerin birbirinden farklı olduğunu doğrula
+        assertThat(expectedKey1).isNotEqualTo(expectedKey2);
+        assertThat(expectedKey1).contains(":5:RETAIL:x:x");
+        assertThat(expectedKey2).contains(":5:WHOLESALE:x:x");
+    }
+
     private void stubCacheMiss() {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(anyString())).thenReturn(null);

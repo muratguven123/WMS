@@ -12,17 +12,21 @@ import java.time.OffsetDateTime;
  *
  * <h3>Kural Eşleşme Mantığı</h3>
  * <p>Nullable olan tüm bağlam alanları ({@code companyId}, {@code countryId},
- * {@code locationId}, {@code roleId}, {@code operationType}) "herkes için geçerli"
- * anlamına gelir. Kural motoru ({@code DynamicUiService}) gelen {@code UiContext}
- * ile kısmi veya tam eşleşen kuralları filtreler.</p>
+ * {@code locationId}, {@code roleId}, {@code operationType}, {@code warehouseId},
+ * {@code customerType}, {@code productType}, {@code transactionStatus}) "herkes için
+ * geçerli" anlamına gelir. Kural motoru ({@code DynamicUiService}) gelen
+ * {@code UiContext} ile kısmi veya tam eşleşen kuralları filtreler.</p>
  *
  * <h3>Öncelik Hiyerarşisi (varsayılan atama)</h3>
  * <pre>
- *   Lokasyon = 50 | Rol = 40 | Şirket = 30 | Ülke = 20 | Varsayılan = 10
+ *   Depo = 60 | Lokasyon = 50 | Rol = 40 | MüşteriTipi = 36 | ÜrünTipi = 34
+ *   | İşlemDurumu = 32 | Şirket = 30 | Ülke = 20 | Varsayılan = 10
  * </pre>
  *
- * <p>Aynı alan için birden fazla kural eşleşirse en yüksek {@code priority} değerine
- * sahip kural kazanır.</p>
+ * <h3>Kazanan Kural Seçimi (İş İsteri 2.1, Madde 8.3)</h3>
+ * <p>Aynı alan için birden fazla kural eşleşirse önce <b>spesifiklik</b> karşılaştırılır:
+ * daha çok bağlam boyutu dolu olan (dolayısıyla daha çok boyutu eşleşen) kural kazanır.
+ * Spesifiklik eşitse en yüksek {@code priority} değerine sahip kural kazanır.</p>
  *
  * <p>Bu entity {@link BaseEntity}'yi <b>extend etmez</b>: soft-delete ve
  * {@code createdAt} yönetimine ihtiyaç duyulmaz; kural silindiğinde gerçekten
@@ -37,7 +41,11 @@ import java.time.OffsetDateTime;
                 @Index(name = "idx_fbr_location",     columnList = "location_id"),
                 @Index(name = "idx_fbr_role",         columnList = "role_id"),
                 @Index(name = "idx_fbr_company",      columnList = "company_id"),
-                @Index(name = "idx_fbr_country",      columnList = "country_id")
+                @Index(name = "idx_fbr_country",      columnList = "country_id"),
+                @Index(name = "idx_fbr_warehouse",    columnList = "warehouse_id"),
+                @Index(name = "idx_fbr_customer_type", columnList = "customer_type"),
+                @Index(name = "idx_fbr_product_type",  columnList = "product_type"),
+                @Index(name = "idx_fbr_txn_status",    columnList = "transaction_status")
         }
 )
 @Getter
@@ -92,6 +100,35 @@ public class FieldBehaviorRule {
      */
     @Column(name = "operation_type", length = 50)
     private String operationType;
+
+    /**
+     * Hangi depo (Location/Zone referansı) için geçerli. Null → tüm depolar.
+     * Bilinçli olarak FK tanımlanmaz — diğer bağlam kolonlarıyla tutarlı (bkz. V16).
+     */
+    @Column(name = "warehouse_id")
+    private Long warehouseId;
+
+    /**
+     * Hangi müşteri tipi için geçerli — örn: {@code RETAIL}, {@code WHOLESALE},
+     * {@code ECOMMERCE}. Null → tüm müşteri tipleri.
+     * Servis katmanında UPPER_SNAKE_CASE olarak normalize edilir.
+     */
+    @Column(name = "customer_type", length = 50)
+    private String customerType;
+
+    /**
+     * Hangi ürün tipi için geçerli — örn: {@code STANDARD}, {@code HAZMAT},
+     * {@code COLD_CHAIN}. Null → tüm ürün tipleri.
+     */
+    @Column(name = "product_type", length = 50)
+    private String productType;
+
+    /**
+     * Hangi işlem durumu için geçerli — örn: {@code DRAFT}, {@code APPROVED},
+     * {@code SHIPPED}. Null → tüm durumlar.
+     */
+    @Column(name = "transaction_status", length = 50)
+    private String transactionStatus;
 
     // ── Kural Çıktısı ──────────────────────────────────────────────────────
 

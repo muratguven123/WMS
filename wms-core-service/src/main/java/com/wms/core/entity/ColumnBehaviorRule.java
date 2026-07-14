@@ -9,6 +9,10 @@ import java.time.OffsetDateTime;
 
 /**
  * Rol/şirket bazlı tablo kolonu görünürlük kuralı (İş İsteri 16).
+ *
+ * <p>İş İsteri 2.1 (Madde 8.3) ile depo, müşteri tipi, ürün tipi ve işlem durumu
+ * boyutları eklendi. Null boyut = "herkes/her durum için geçerli" semantiği korunur.
+ * Kazanan kural: önce spesifiklik (dolu boyut sayısı), eşitlikte {@code priority}.</p>
  */
 @Entity
 @Table(
@@ -16,7 +20,11 @@ import java.time.OffsetDateTime;
         indexes = {
                 @Index(name = "idx_cbr_column", columnList = "table_column_def_id"),
                 @Index(name = "idx_cbr_role", columnList = "role_id"),
-                @Index(name = "idx_cbr_company", columnList = "company_id")
+                @Index(name = "idx_cbr_company", columnList = "company_id"),
+                @Index(name = "idx_cbr_warehouse", columnList = "warehouse_id"),
+                @Index(name = "idx_cbr_customer_type", columnList = "customer_type"),
+                @Index(name = "idx_cbr_product_type", columnList = "product_type"),
+                @Index(name = "idx_cbr_txn_status", columnList = "transaction_status")
         }
 )
 @Getter
@@ -46,6 +54,22 @@ public class ColumnBehaviorRule {
 
     @Column(name = "company_id")
     private Long companyId;
+
+    /** Hangi depo için geçerli (Location/Zone referansı). Null → tüm depolar. */
+    @Column(name = "warehouse_id")
+    private Long warehouseId;
+
+    /** Örn: RETAIL, WHOLESALE, ECOMMERCE. Null → tüm müşteri tipleri. */
+    @Column(name = "customer_type", length = 50)
+    private String customerType;
+
+    /** Örn: STANDARD, HAZMAT, COLD_CHAIN. Null → tüm ürün tipleri. */
+    @Column(name = "product_type", length = 50)
+    private String productType;
+
+    /** Örn: DRAFT, APPROVED, SHIPPED. Null → tüm işlem durumları. */
+    @Column(name = "transaction_status", length = 50)
+    private String transactionStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "behavior", nullable = false, length = 20)

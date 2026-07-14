@@ -45,4 +45,9 @@ public interface UserAccessRepository extends JpaRepository<UserAccess, Long> {
     boolean hasAccess(@Param("userId") Long userId,
                       @Param("companyId") Long companyId,
                       @Param("locationId") Long locationId);
+
+    /** Firma kullanım özeti / pasifleştirme engeli. */
+    long countByCompanyId(Long companyId);
+
+    boolean existsByCompanyId(Long companyId);
 }

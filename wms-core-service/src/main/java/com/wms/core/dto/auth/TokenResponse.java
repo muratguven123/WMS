@@ -5,5 +5,7 @@ public record TokenResponse(
         String refreshToken,
         String idToken,
         long expiresIn,
-        String tokenType
+        String tokenType,
+        String preferredLanguage,
+        String preferredTimezone
 ) {}

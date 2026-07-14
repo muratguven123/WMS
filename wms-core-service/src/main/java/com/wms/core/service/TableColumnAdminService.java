@@ -10,6 +10,7 @@ import com.wms.core.repository.ColumnBehaviorRuleRepository;
 import com.wms.core.repository.ScreenRepository;
 import com.wms.core.repository.TableColumnDefRepository;
 import com.wms.core.security.TenantContextHolder;
+import com.wms.core.util.DimensionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,9 +27,13 @@ import java.util.List;
 @Transactional
 public class TableColumnAdminService {
 
-    private static final int PRIORITY_ROLE = 40;
-    private static final int PRIORITY_COMPANY = 30;
-    private static final int PRIORITY_GLOBAL = 10;
+    private static final int PRIORITY_WAREHOUSE     = 60;
+    private static final int PRIORITY_ROLE          = 40;
+    private static final int PRIORITY_CUSTOMER_TYPE = 36;
+    private static final int PRIORITY_PRODUCT_TYPE  = 34;
+    private static final int PRIORITY_TXN_STATUS    = 32;
+    private static final int PRIORITY_COMPANY       = 30;
+    private static final int PRIORITY_GLOBAL        = 10;
 
     private final ScreenRepository screenRepository;
     private final TableColumnDefRepository columnDefRepository;
@@ -108,16 +113,32 @@ public class TableColumnAdminService {
                 .priority(priority)
                 .roleId(request.roleId())
                 .companyId(request.companyId())
+                .warehouseId(request.warehouseId())
+                .customerType(DimensionCode.normalizeAndValidate(request.customerType(), "customerType"))
+                .productType(DimensionCode.normalizeAndValidate(request.productType(), "productType"))
+                .transactionStatus(DimensionCode.normalizeAndValidate(request.transactionStatus(), "transactionStatus"))
                 .behavior(request.behavior())
                 .build();
         columnRuleRepository.save(rule);
 
         String screenCode = def.getScreen().getCode();
-        audit("ColumnBehaviorRule", rule.getId(), "CREATE", List.of(
-                new ConfigChangeEvent.FieldChange("behavior", null, request.behavior().name())));
+        audit("ColumnBehaviorRule", rule.getId(), "CREATE", buildColumnRuleCreateChanges(rule));
         tableUiService.evictScreenTableCache(screenCode);
 
         return toRuleResponse(rule);
+    }
+
+    private List<ConfigChangeEvent.FieldChange> buildColumnRuleCreateChanges(ColumnBehaviorRule rule) {
+        List<ConfigChangeEvent.FieldChange> changes = new ArrayList<>();
+        changes.add(new ConfigChangeEvent.FieldChange("behavior", null, rule.getBehavior().name()));
+        changes.add(new ConfigChangeEvent.FieldChange("priority", null, String.valueOf(rule.getPriority())));
+        if (rule.getRoleId() != null) changes.add(new ConfigChangeEvent.FieldChange("roleId", null, rule.getRoleId().toString()));
+        if (rule.getCompanyId() != null) changes.add(new ConfigChangeEvent.FieldChange("companyId", null, rule.getCompanyId().toString()));
+        if (rule.getWarehouseId() != null) changes.add(new ConfigChangeEvent.FieldChange("warehouseId", null, rule.getWarehouseId().toString()));
+        if (rule.getCustomerType() != null) changes.add(new ConfigChangeEvent.FieldChange("customerType", null, rule.getCustomerType()));
+        if (rule.getProductType() != null) changes.add(new ConfigChangeEvent.FieldChange("productType", null, rule.getProductType()));
+        if (rule.getTransactionStatus() != null) changes.add(new ConfigChangeEvent.FieldChange("transactionStatus", null, rule.getTransactionStatus()));
+        return changes;
     }
 
     public void deleteColumnRule(Long ruleId) {
@@ -137,8 +158,12 @@ public class TableColumnAdminService {
     }
 
     private int computePriority(UpsertColumnRuleRequest request) {
-        if (request.roleId() != null) return PRIORITY_ROLE;
-        if (request.companyId() != null) return PRIORITY_COMPANY;
+        if (request.warehouseId()       != null) return PRIORITY_WAREHOUSE;
+        if (request.roleId()            != null) return PRIORITY_ROLE;
+        if (request.customerType()      != null) return PRIORITY_CUSTOMER_TYPE;
+        if (request.productType()       != null) return PRIORITY_PRODUCT_TYPE;
+        if (request.transactionStatus() != null) return PRIORITY_TXN_STATUS;
+        if (request.companyId()         != null) return PRIORITY_COMPANY;
         return PRIORITY_GLOBAL;
     }
 
@@ -169,6 +194,10 @@ public class TableColumnAdminService {
                 r.getPriority(),
                 r.getRoleId(),
                 r.getCompanyId(),
+                r.getWarehouseId(),
+                r.getCustomerType(),
+                r.getProductType(),
+                r.getTransactionStatus(),
                 r.getBehavior());
     }
 

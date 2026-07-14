@@ -32,4 +32,9 @@ public class JpaListenerConfig {
     public LocationProcessStepConfigAuditListener locationProcessStepConfigAuditListener() {
         return new LocationProcessStepConfigAuditListener();
     }
+
+    @Bean
+    public com.wms.core.entity.listener.ProcessStepDefinitionAuditListener processStepDefinitionAuditListener() {
+        return new com.wms.core.entity.listener.ProcessStepDefinitionAuditListener();
+    }
 }

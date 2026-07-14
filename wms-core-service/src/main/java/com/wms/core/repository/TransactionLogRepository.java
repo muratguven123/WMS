@@ -17,4 +17,7 @@ public interface TransactionLogRepository
 
     List<TransactionLog> findByCompanyIdAndCreatedAtUtcBetween(
             Long companyId, OffsetDateTime start, OffsetDateTime end);
+
+    /** Firma kullanım özeti: işlem günlüğü kayıt sayısı. */
+    long countByCompanyId(Long companyId);
 }

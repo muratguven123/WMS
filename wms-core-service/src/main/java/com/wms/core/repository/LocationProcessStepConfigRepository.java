@@ -38,4 +38,6 @@ public interface LocationProcessStepConfigRepository extends JpaRepository<Locat
             WHERE sc.id = :id
             """)
     java.util.Optional<LocationProcessStepConfig> findWithProcessById(@Param("id") Long id);
+
+    long countByProcessStepDefinitionIdAndIsActiveTrue(Long processStepDefinitionId);
 }

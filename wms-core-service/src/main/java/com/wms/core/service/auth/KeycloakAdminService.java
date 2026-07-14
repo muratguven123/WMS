@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.wms.core.config.KeycloakProperties;
+import com.wms.core.event.ConfigChangeEvent;
 import com.wms.core.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -24,6 +26,7 @@ public class KeycloakAdminService {
     private final KeycloakProperties keycloakProperties;
     private final KeycloakAuthService keycloakAuthService;
     private final ObjectMapper objectMapper;
+    private final ApplicationEventPublisher eventPublisher;
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
@@ -103,6 +106,63 @@ public class KeycloakAdminService {
                 Void.class);
     }
 
+    public void enableUser(String keycloakUserId) {
+        String adminToken = keycloakAuthService.getAdminToken();
+        HttpHeaders headers = authHeaders(adminToken);
+
+        ObjectNode payload = objectMapper.createObjectNode();
+        payload.put("enabled", true);
+
+        restTemplate.exchange(
+                keycloakProperties.adminUsersEndpoint() + "/" + keycloakUserId,
+                HttpMethod.PUT,
+                new HttpEntity<>(payload.toString(), headers),
+                Void.class);
+    }
+
+    public void updateUserRoles(String keycloakUserId, List<String> newRoles) {
+        String adminToken = keycloakAuthService.getAdminToken();
+        HttpHeaders headers = authHeaders(adminToken);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    keycloakProperties.adminUserRoleMappingsEndpoint(keycloakUserId),
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    String.class);
+
+            JsonNode currentRolesNode = objectMapper.readTree(response.getBody());
+            ArrayNode rolesToDelete = objectMapper.createArrayNode();
+            if (currentRolesNode.isArray()) {
+                for (JsonNode role : currentRolesNode) {
+                    String roleName = role.path("name").asText();
+                    if (List.of("WMS_ADMIN", "WAREHOUSE_MANAGER", "INBOUND_CLERK", "INVENTORY_CLERK",
+                                "PICKER", "PACKER", "SHIPPING_CLERK", "FINANCE_USER", "FINANCE_MANAGER",
+                                "INTEGRATION_ADMIN", "LOCALIZATION_ADMIN").contains(roleName)) {
+                        ObjectNode roleRef = objectMapper.createObjectNode();
+                        roleRef.put("id", role.path("id").asText());
+                        roleRef.put("name", roleName);
+                        rolesToDelete.add(roleRef);
+                    }
+                }
+            }
+
+            if (!rolesToDelete.isEmpty()) {
+                restTemplate.exchange(
+                        keycloakProperties.adminUserRoleMappingsEndpoint(keycloakUserId),
+                        HttpMethod.DELETE,
+                        new HttpEntity<>(rolesToDelete.toString(), headers),
+                        Void.class);
+            }
+
+            assignRealmRoles(keycloakUserId, newRoles, adminToken);
+            log.info("Keycloak roles updated for kcId={} to {}", keycloakUserId, newRoles);
+        } catch (Exception ex) {
+            log.error("Failed to update Keycloak roles for user {}: {}", keycloakUserId, ex.getMessage());
+            throw new BusinessException("Keycloak rol güncellemesi başarısız", HttpStatus.BAD_GATEWAY);
+        }
+    }
+
     /**
      * Keycloak kullanıcı attribute'undaki {@code wms_user_id} değerini yerel PK ile eşitler.
      *
@@ -168,6 +228,14 @@ public class KeycloakAdminService {
             }
 
             log.info("Keycloak wms_user_id synced → kcId={}, wmsUserId={}", keycloakUserId, expected);
+            eventPublisher.publishEvent(new ConfigChangeEvent(
+                    this,
+                    "KeycloakUser",
+                    wmsUserId,
+                    "SYNC",
+                    List.of(new ConfigChangeEvent.FieldChange("wms_user_id", current, expected)),
+                    null
+            ));
             return true;
         } catch (Exception ex) {
             log.warn("Keycloak wms_user_id sync failed for kcId={}: {}", keycloakUserId, ex.getMessage());

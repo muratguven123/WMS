@@ -28,4 +28,6 @@ public interface LocationProcessConfigRepository extends JpaRepository<LocationP
               AND lpc.isActive = true
             """)
     List<LocationProcessConfig> findActiveByLocationId(@Param("locationId") Long locationId);
+
+    List<LocationProcessConfig> findByProcessDefinitionId(Long processDefinitionId);
 }

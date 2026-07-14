@@ -21,4 +21,7 @@ public interface ConfigurationAuditLogRepository extends JpaRepository<Configura
 
     org.springframework.data.domain.Page<ConfigurationAuditLog> findByChangedByUserIdOrderByChangedAtDesc(
             Long changedByUserId, org.springframework.data.domain.Pageable pageable);
+
+    org.springframework.data.domain.Page<ConfigurationAuditLog> findByEntityNameContainingIgnoreCaseAndChangedByUserIdOrderByChangedAtDesc(
+            String entityName, Long changedByUserId, org.springframework.data.domain.Pageable pageable);
 }

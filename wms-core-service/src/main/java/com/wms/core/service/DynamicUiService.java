@@ -36,18 +36,25 @@ import java.util.stream.Collectors;
  * </ol>
  *
  * <h3>Cache Key Deseni</h3>
- * <pre>ui:{screenCode}:{locationId}:{roleId}:{companyId}:{countryId}:{operationType}</pre>
+ * <pre>ui:{screenCode}:{locationId}:{roleId}:{companyId}:{countryId}:{operationType}:{warehouseId}:{customerType}:{productType}:{transactionStatus}</pre>
+ * <p>Format V23 ile 5 segmentten 9 segmente çıktı — eski key'ler okunmaz,
+ * TTL ile düşer (bkz. V23 migration notu).</p>
  *
- * <h3>Kural Eşleşme Algoritması</h3>
- * <p>Bir kural, aşağıdaki koşulların tamamını sağladığında eşleşir:</p>
- * <ul>
- *   <li>{@code rule.locationId    == null || rule.locationId    == ctx.locationId}</li>
- *   <li>{@code rule.roleId        == null || rule.roleId        == ctx.roleId}</li>
- *   <li>{@code rule.companyId     == null || rule.companyId     == ctx.companyId}</li>
- *   <li>{@code rule.countryId     == null || rule.countryId     == ctx.countryId}</li>
- *   <li>{@code rule.operationType == null || rule.operationType.equals(ctx.operationType)}</li>
- * </ul>
- * <p>Eşleşen kurallar arasında en yüksek {@code priority} değerine sahip olan seçilir.</p>
+ * <h3>Kural Eşleşme Algoritması (İş İsteri 2.1, Madde 8.3)</h3>
+ * <p>Bir kural, tüm boyutlarda {@code rule.dim == null || rule.dim == ctx.dim}
+ * koşulunu sağladığında eşleşir. Boyutlar: locationId, roleId, companyId,
+ * countryId, operationType, warehouseId, customerType, productType,
+ * transactionStatus.</p>
+ *
+ * <h3>Kazanan Kural Seçimi</h3>
+ * <ol>
+ *   <li><b>Spesifiklik:</b> dolu (non-null) boyut sayısı en fazla olan kural kazanır —
+ *       "daha çok boyutu eşleşen kural kazanır".</li>
+ *   <li><b>Priority:</b> spesifiklik eşitse en yüksek {@code priority} kazanır.</li>
+ * </ol>
+ * <p>Yalnızca eski 5 boyutu kullanan kural setlerinde davranış geriye dönük
+ * uyumludur: tek boyutlu kurallar arasında spesifiklik hep eşittir (1) ve
+ * seçim eskisi gibi priority ile yapılır.</p>
  */
 @Slf4j
 @Service
@@ -147,8 +154,9 @@ public class DynamicUiService {
      *
      * <ol>
      *   <li>Bağlam eşleşen kuralları filtrele.</li>
-     *   <li>Priority büyükten küçüğe sırala.</li>
-     *   <li>En yüksek priority'li kuralı al → davranış, defaultValue, regex.</li>
+     *   <li>Spesifiklik (dolu boyut sayısı) büyükten küçüğe; eşitlikte priority
+     *       büyükten küçüğe sırala.</li>
+     *   <li>Kazanan kuralı al → davranış, defaultValue, regex.</li>
      *   <li>Hiç eşleşen kural yoksa → {@code defaultBehavior} uygula.</li>
      * </ol>
      */
@@ -157,7 +165,8 @@ public class DynamicUiService {
                                           UiContext context) {
         FieldBehaviorRule winningRule = fieldRules.stream()
                 .filter(rule -> matches(rule, context))
-                .max(Comparator.comparingInt(FieldBehaviorRule::getPriority))
+                .max(Comparator.comparingInt(DynamicUiService::specificityScore)
+                        .thenComparingInt(FieldBehaviorRule::getPriority))
                 .orElse(null);
 
         FieldBehavior behavior      = winningRule != null ? winningRule.getBehavior()         : field.getDefaultBehavior();
@@ -191,7 +200,32 @@ public class DynamicUiService {
             && nullOrEquals(rule.getRoleId(),       ctx.roleId())
             && nullOrEquals(rule.getCompanyId(),    ctx.companyId())
             && nullOrEquals(rule.getCountryId(),    ctx.countryId())
-            && nullOrEqualsStr(rule.getOperationType(), ctx.operationType());
+            && nullOrEqualsStr(rule.getOperationType(), ctx.operationType())
+            && nullOrEquals(rule.getWarehouseId(),  ctx.warehouseId())
+            && nullOrEqualsStr(rule.getCustomerType(),      ctx.customerType())
+            && nullOrEqualsStr(rule.getProductType(),       ctx.productType())
+            && nullOrEqualsStr(rule.getTransactionStatus(), ctx.transactionStatus());
+    }
+
+    /**
+     * Kuralın spesifiklik skoru = dolu (non-null) bağlam boyutu sayısı.
+     *
+     * <p>Eşleşmiş bir kuralda dolu her boyut context değerine eşittir; dolayısıyla
+     * bu skor "eşleşen boyut sayısı" ile birebir aynıdır. Daha spesifik kural,
+     * priority'den bağımsız olarak daha genel kuralı ezer.</p>
+     */
+    static int specificityScore(FieldBehaviorRule rule) {
+        int score = 0;
+        if (rule.getLocationId()        != null) score++;
+        if (rule.getRoleId()            != null) score++;
+        if (rule.getCompanyId()         != null) score++;
+        if (rule.getCountryId()         != null) score++;
+        if (rule.getOperationType()     != null) score++;
+        if (rule.getWarehouseId()       != null) score++;
+        if (rule.getCustomerType()      != null) score++;
+        if (rule.getProductType()       != null) score++;
+        if (rule.getTransactionStatus() != null) score++;
+        return score;
     }
 
     private boolean nullOrEquals(Long ruleValue, Long ctxValue) {

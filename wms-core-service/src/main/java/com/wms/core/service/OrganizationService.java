@@ -9,6 +9,7 @@ import com.wms.core.entity.Region;
 import com.wms.core.entity.User;
 import com.wms.core.entity.UserAccess;
 import com.wms.core.exception.BusinessException;
+import com.wms.core.repository.CompanyRepository;
 import com.wms.core.repository.LocationRepository;
 import com.wms.core.repository.RegionRepository;
 import com.wms.core.repository.UserAccessRepository;
@@ -16,12 +17,14 @@ import com.wms.core.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +37,18 @@ public class OrganizationService {
     private final UserAccessRepository userAccessRepository;
     private final LocationRepository locationRepository;
     private final RegionRepository regionRepository;
+    private final CompanyRepository companyRepository;
 
     @Transactional(readOnly = true)
     public List<CompanySummaryDto> listAccessibleCompanies() {
+        // WMS_ADMIN tüm aktif firmaları görür (Firma Yönetimi → Organizasyon Yapısı anlık yansıma)
+        if (hasRole("ROLE_WMS_ADMIN")) {
+            return companyRepository.findAll().stream()
+                    .sorted(Comparator.comparing(Company::getName, String.CASE_INSENSITIVE_ORDER))
+                    .map(c -> new CompanySummaryDto(c.getId(), c.getName(), c.getTaxNumber()))
+                    .toList();
+        }
+
         Long userId = resolveCurrentUserId();
         List<UserAccess> accesses = userAccessRepository.findByUserIdWithCompany(userId);
 
@@ -53,6 +65,17 @@ public class OrganizationService {
 
     @Transactional(readOnly = true)
     public List<LocationSummaryDto> listAccessibleLocations(Long companyId) {
+        if (hasRole("ROLE_WMS_ADMIN")) {
+            return locationRepository.findByCompanyIdAndIsActiveTrue(companyId).stream()
+                    .map(loc -> new LocationSummaryDto(
+                            loc.getId(),
+                            companyId,
+                            loc.getName(),
+                            loc.getTimezone(),
+                            loc.isActive()))
+                    .toList();
+        }
+
         Long userId = resolveCurrentUserId();
         List<UserAccess> accesses = userAccessRepository.findByUserIdAndCompanyIdWithLocation(userId, companyId);
 
@@ -108,5 +131,15 @@ public class OrganizationService {
                         HttpStatus.FORBIDDEN,
                         "USER_NOT_PROVISIONED"));
         return user.getId();
+    }
+
+    private boolean hasRole(String role) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return false;
+        }
+        return auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(role::equals);
     }
 }

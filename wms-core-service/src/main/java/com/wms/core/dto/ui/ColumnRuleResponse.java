@@ -9,5 +9,9 @@ public record ColumnRuleResponse(
         int priority,
         Long roleId,
         Long companyId,
+        Long warehouseId,
+        String customerType,
+        String productType,
+        String transactionStatus,
         ColumnBehavior behavior
 ) {}

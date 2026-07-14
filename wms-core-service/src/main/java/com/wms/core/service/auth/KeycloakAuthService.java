@@ -14,8 +14,11 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.transaction.annotation.Transactional;
+import com.wms.core.entity.UserAccess;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import java.util.Objects;
 
 import java.util.Base64;
 import java.util.Map;
@@ -41,6 +44,7 @@ public class KeycloakAuthService {
         this.objectMapper = objectMapper;
     }
 
+    @Transactional(readOnly = true)
     public TokenResponse login(String username, String password) {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "password");
@@ -50,7 +54,15 @@ public class KeycloakAuthService {
         body.add("password", password);
 
         try {
-            return issueTokenWithSyncedClaim(body);
+            TokenResponse res = issueTokenWithSyncedClaim(body);
+            Optional<User> localUser = userRepository.findByUsername(username);
+            if (localUser.isPresent()) {
+                User user = localUser.get();
+                String lang = resolveLanguage(user);
+                String tz = user.getPreferredTimezone();
+                return new TokenResponse(res.accessToken(), res.refreshToken(), res.idToken(), res.expiresIn(), res.tokenType(), lang, tz);
+            }
+            return res;
         } catch (HttpClientErrorException.Unauthorized ex) {
             throw new BusinessException("Kullanıcı adı veya şifre hatalı", HttpStatus.UNAUTHORIZED, "AUTH_INVALID");
         } catch (HttpClientErrorException ex) {
@@ -59,6 +71,7 @@ public class KeycloakAuthService {
         }
     }
 
+    @Transactional(readOnly = true)
     public TokenResponse refresh(String refreshToken) {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "refresh_token");
@@ -67,7 +80,18 @@ public class KeycloakAuthService {
         body.add("refresh_token", refreshToken);
 
         try {
-            return issueTokenWithSyncedClaim(body);
+            TokenResponse res = issueTokenWithSyncedClaim(body);
+            String keycloakSub = parseJwtClaim(res.accessToken(), "sub");
+            if (keycloakSub != null) {
+                Optional<User> localUser = userRepository.findByKeycloakUserId(keycloakSub);
+                if (localUser.isPresent()) {
+                    User user = localUser.get();
+                    String lang = resolveLanguage(user);
+                    String tz = user.getPreferredTimezone();
+                    return new TokenResponse(res.accessToken(), res.refreshToken(), res.idToken(), res.expiresIn(), res.tokenType(), lang, tz);
+                }
+            }
+            return res;
         } catch (HttpClientErrorException ex) {
             throw new BusinessException("Oturum yenilenemedi", HttpStatus.UNAUTHORIZED, "AUTH_REFRESH_FAILED");
         }
@@ -184,7 +208,9 @@ public class KeycloakAuthService {
                 (String) data.get("refresh_token"),
                 (String) data.get("id_token"),
                 ((Number) data.getOrDefault("expires_in", 900)).longValue(),
-                (String) data.getOrDefault("token_type", "Bearer"));
+                (String) data.getOrDefault("token_type", "Bearer"),
+                null,
+                null);
     }
 
     /** Keycloak Admin API token (admin-cli + master realm). */
@@ -212,5 +238,40 @@ public class KeycloakAuthService {
             log.error("Keycloak admin token hatası: {}", ex.getResponseBodyAsString());
             throw new BusinessException("Keycloak admin erişimi başarısız", HttpStatus.BAD_GATEWAY, "KC_ADMIN_TOKEN");
         }
+    }
+
+    private String resolveLanguage(User user) {
+        if (user.getPreferredLanguage() != null && !user.getPreferredLanguage().isBlank()) {
+            return user.getPreferredLanguage();
+        }
+        if (user.getUserAccesses() != null) {
+            for (UserAccess access : user.getUserAccesses()) {
+                if (access.getLocation() != null &&
+                    access.getLocation().getRegion() != null &&
+                    access.getLocation().getRegion().getCountry() != null) {
+                    String isoCode = access.getLocation().getRegion().getCountry().getIsoCode();
+                    if (isoCode != null) {
+                        return mapCountryToLanguage(isoCode);
+                    }
+                }
+            }
+        }
+        return "en";
+    }
+
+    private String mapCountryToLanguage(String countryIsoCode) {
+        if (countryIsoCode == null) return "en";
+        return switch (countryIsoCode.toUpperCase()) {
+            case "TR", "TUR" -> "tr";
+            case "DE", "DEU" -> "de";
+            case "FR", "FRA" -> "fr";
+            case "ES", "ESP" -> "es";
+            case "IT", "ITA" -> "it";
+            case "PT", "PRT" -> "pt";
+            case "RU", "RUS" -> "ru";
+            case "NL", "NLD" -> "nl";
+            case "PL", "POL" -> "pl";
+            default -> "en";
+        };
     }
 }

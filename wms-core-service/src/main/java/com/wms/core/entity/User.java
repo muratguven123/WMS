@@ -48,6 +48,9 @@ public class User extends BaseEntity {
     @Column(name = "preferred_timezone", length = 50)
     private String preferredTimezone;
 
+    @Column(name = "preferred_language", length = 5)
+    private String preferredLanguage;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @Builder.Default
     private List<UserAccess> userAccesses = new ArrayList<>();

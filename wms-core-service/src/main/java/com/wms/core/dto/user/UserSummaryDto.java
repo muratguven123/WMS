@@ -8,5 +8,7 @@ public record UserSummaryDto(
         String email,
         String keycloakUserId,
         boolean active,
-        List<UserAccessDto> accesses
+        List<UserAccessDto> accesses,
+        String preferredLanguage,
+        String preferredTimezone
 ) {}

@@ -53,4 +53,40 @@ public class UserManagementController {
         userManagementService.deactivateUser(userId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{userId}/activate")
+    public ResponseEntity<Void> activateUser(@PathVariable Long userId) {
+        userManagementService.activateUser(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/preferences")
+    @PreAuthorize("hasRole('WMS_ADMIN') or (isAuthenticated() and #id == @tenantSecurityHelper.currentUserId)")
+    public ResponseEntity<UserSummaryDto> updatePreferences(
+            @PathVariable Long id,
+            @Valid @RequestBody com.wms.core.dto.user.UserPreferencesRequest request) {
+        return ResponseEntity.ok(userManagementService.updatePreferences(id, request));
+    }
+
+    @PostMapping("/{userId}/access")
+    public ResponseEntity<UserSummaryDto> grantAccess(
+            @PathVariable Long userId,
+            @Valid @RequestBody com.wms.core.dto.user.GrantAccessRequest request) {
+        return ResponseEntity.ok(userManagementService.grantAccess(userId, request));
+    }
+
+    @DeleteMapping("/{userId}/access/{accessId}")
+    public ResponseEntity<UserSummaryDto> revokeAccess(
+            @PathVariable Long userId,
+            @PathVariable Long accessId) {
+        return ResponseEntity.ok(userManagementService.revokeAccess(userId, accessId));
+    }
+
+    @PutMapping("/{userId}/roles")
+    public ResponseEntity<Void> updateUserRoles(
+            @PathVariable Long userId,
+            @Valid @RequestBody com.wms.core.dto.user.UpdateUserRolesRequest request) {
+        userManagementService.updateUserRoles(userId, request.roles());
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -9,6 +9,7 @@ import com.wms.core.exception.BusinessException;
 import com.wms.core.repository.FieldBehaviorRuleRepository;
 import com.wms.core.repository.ScreenFieldRepository;
 import com.wms.core.security.TenantContextHolder;
+import com.wms.core.util.DimensionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -32,16 +33,25 @@ import java.util.List;
  *       {@link AuditLogService} async olarak DB'ye yazar.</li>
  * </ol>
  *
- * <h3>Öncelik Hiyerarşisi (otomatik atama)</h3>
+ * <h3>Öncelik Hiyerarşisi (otomatik atama, ilk eşleşen kazanır)</h3>
  * <pre>
- *   locationId dolu  → 50
- *   roleId dolu      → 40
- *   companyId dolu   → 30
- *   countryId dolu   → 20
- *   global (hepsi null) → 10
+ *   warehouseId dolu        → 60
+ *   locationId dolu         → 50
+ *   roleId dolu             → 40
+ *   customerType dolu       → 36
+ *   productType dolu        → 34
+ *   transactionStatus dolu  → 32
+ *   companyId dolu          → 30
+ *   countryId dolu          → 20
+ *   global (hepsi null)     → 10
  * </pre>
  *
- * <p>El ile girilen {@code priority} bu hesaplamayı geçersiz kılar.</p>
+ * <p>El ile girilen {@code priority} bu hesaplamayı geçersiz kılar. Priority,
+ * çözümlemede yalnızca spesifiklik eşitliğinde devreye girer
+ * (bkz. {@link DynamicUiService}).</p>
+ *
+ * <p>String boyut kodları (customerType, productType, transactionStatus)
+ * kayıttan önce {@link DimensionCode} ile normalize edilir ve doğrulanır.</p>
  */
 @Slf4j
 @Service
@@ -50,11 +60,15 @@ import java.util.List;
 public class UiRuleManagementService {
 
     // Varsayılan öncelik sabitleri
-    private static final int PRIORITY_LOCATION = 50;
-    private static final int PRIORITY_ROLE      = 40;
-    private static final int PRIORITY_COMPANY   = 30;
-    private static final int PRIORITY_COUNTRY   = 20;
-    private static final int PRIORITY_GLOBAL    = 10;
+    private static final int PRIORITY_WAREHOUSE     = 60;
+    private static final int PRIORITY_LOCATION      = 50;
+    private static final int PRIORITY_ROLE          = 40;
+    private static final int PRIORITY_CUSTOMER_TYPE = 36;
+    private static final int PRIORITY_PRODUCT_TYPE  = 34;
+    private static final int PRIORITY_TXN_STATUS    = 32;
+    private static final int PRIORITY_COMPANY       = 30;
+    private static final int PRIORITY_COUNTRY       = 20;
+    private static final int PRIORITY_GLOBAL        = 10;
 
     private final FieldBehaviorRuleRepository ruleRepository;
     private final ScreenFieldRepository       screenFieldRepository;
@@ -79,6 +93,7 @@ public class UiRuleManagementService {
      * @return kaydedilen kuralın response DTO'su
      */
     public RuleResponse createRule(UpsertRuleRequest request) {
+        request = sanitize(request);
         ScreenField field = findField(request.screenFieldId());
 
         int priority = resolvePriority(request);
@@ -110,6 +125,7 @@ public class UiRuleManagementService {
      * @return güncellenmiş kuralın response DTO'su
      */
     public RuleResponse updateRule(Long ruleId, UpsertRuleRequest request) {
+        request = sanitize(request);
         FieldBehaviorRule rule = findRule(ruleId);
         ScreenField field = rule.getScreenField();
 
@@ -167,17 +183,48 @@ public class UiRuleManagementService {
      * Request'teki {@code priority} null ise bağlam alanlarından otomatik hesaplar,
      * dolu ise el ile girilen değeri döner.
      *
-     * <p>Hiyerarşi (ilk eşleşen kazanır): lokasyon → rol → şirket → ülke → global</p>
+     * <p>Hiyerarşi (ilk eşleşen kazanır): depo → lokasyon → rol → müşteri tipi
+     * → ürün tipi → işlem durumu → şirket → ülke → global</p>
      */
     int resolvePriority(UpsertRuleRequest request) {
         if (request.priority() != null) {
             return request.priority();
         }
-        if (request.locationId() != null) return PRIORITY_LOCATION;
-        if (request.roleId()     != null) return PRIORITY_ROLE;
-        if (request.companyId()  != null) return PRIORITY_COMPANY;
-        if (request.countryId()  != null) return PRIORITY_COUNTRY;
+        if (request.warehouseId()       != null) return PRIORITY_WAREHOUSE;
+        if (request.locationId()        != null) return PRIORITY_LOCATION;
+        if (request.roleId()            != null) return PRIORITY_ROLE;
+        if (request.customerType()      != null) return PRIORITY_CUSTOMER_TYPE;
+        if (request.productType()       != null) return PRIORITY_PRODUCT_TYPE;
+        if (request.transactionStatus() != null) return PRIORITY_TXN_STATUS;
+        if (request.companyId()         != null) return PRIORITY_COMPANY;
+        if (request.countryId()         != null) return PRIORITY_COUNTRY;
         return PRIORITY_GLOBAL;
+    }
+
+    // ── Yardımcı: Boyut Normalizasyonu ───────────────────────────────────────
+
+    /**
+     * String boyut kodlarını normalize eder (trim + UPPER; boş → null) ve
+     * doğrular. resolvePriority dahil tüm downstream akış normalize edilmiş
+     * değerlerle çalışsın diye request'in sanitize kopyası döner.
+     */
+    private UpsertRuleRequest sanitize(UpsertRuleRequest r) {
+        return new UpsertRuleRequest(
+                r.screenFieldId(),
+                r.priority(),
+                r.companyId(),
+                r.countryId(),
+                r.locationId(),
+                r.roleId(),
+                r.operationType(),
+                r.warehouseId(),
+                DimensionCode.normalizeAndValidate(r.customerType(),      "customerType"),
+                DimensionCode.normalizeAndValidate(r.productType(),       "productType"),
+                DimensionCode.normalizeAndValidate(r.transactionStatus(), "transactionStatus"),
+                r.behavior(),
+                r.defaultValue(),
+                r.validationRegex(),
+                r.validationErrorMessageKey());
     }
 
     // ── Yardımcı: Çakışma Kontrolü ───────────────────────────────────────────
@@ -211,6 +258,10 @@ public class UiRuleManagementService {
                 .locationId(request.locationId())
                 .roleId(request.roleId())
                 .operationType(request.operationType())
+                .warehouseId(request.warehouseId())
+                .customerType(request.customerType())
+                .productType(request.productType())
+                .transactionStatus(request.transactionStatus())
                 .behavior(request.behavior())
                 .defaultValue(request.defaultValue())
                 .validationRegex(request.validationRegex())
@@ -225,6 +276,10 @@ public class UiRuleManagementService {
         rule.setLocationId(request.locationId());
         rule.setRoleId(request.roleId());
         rule.setOperationType(request.operationType());
+        rule.setWarehouseId(request.warehouseId());
+        rule.setCustomerType(request.customerType());
+        rule.setProductType(request.productType());
+        rule.setTransactionStatus(request.transactionStatus());
         rule.setBehavior(request.behavior());
         rule.setDefaultValue(request.defaultValue());
         rule.setValidationRegex(request.validationRegex());
@@ -244,6 +299,10 @@ public class UiRuleManagementService {
         if (rule.getRoleId()       != null) changes.add(change("roleId",      null, rule.getRoleId().toString()));
         if (rule.getCompanyId()    != null) changes.add(change("companyId",   null, rule.getCompanyId().toString()));
         if (rule.getCountryId()    != null) changes.add(change("countryId",   null, rule.getCountryId().toString()));
+        if (rule.getWarehouseId()       != null) changes.add(change("warehouseId",       null, rule.getWarehouseId().toString()));
+        if (rule.getCustomerType()      != null) changes.add(change("customerType",      null, rule.getCustomerType()));
+        if (rule.getProductType()       != null) changes.add(change("productType",       null, rule.getProductType()));
+        if (rule.getTransactionStatus() != null) changes.add(change("transactionStatus", null, rule.getTransactionStatus()));
         if (rule.getValidationRegex() != null) changes.add(change("validationRegex", null, rule.getValidationRegex()));
         return changes;
     }
@@ -275,6 +334,18 @@ public class UiRuleManagementService {
         }
         if (!eqNullable(uuidStr(existing.getRoleId()), uuidStr(request.roleId()))) {
             changes.add(change("roleId", uuidStr(existing.getRoleId()), uuidStr(request.roleId())));
+        }
+        if (!eqNullable(uuidStr(existing.getWarehouseId()), uuidStr(request.warehouseId()))) {
+            changes.add(change("warehouseId", uuidStr(existing.getWarehouseId()), uuidStr(request.warehouseId())));
+        }
+        if (!eqNullable(existing.getCustomerType(), request.customerType())) {
+            changes.add(change("customerType", existing.getCustomerType(), request.customerType()));
+        }
+        if (!eqNullable(existing.getProductType(), request.productType())) {
+            changes.add(change("productType", existing.getProductType(), request.productType()));
+        }
+        if (!eqNullable(existing.getTransactionStatus(), request.transactionStatus())) {
+            changes.add(change("transactionStatus", existing.getTransactionStatus(), request.transactionStatus()));
         }
 
         return changes;

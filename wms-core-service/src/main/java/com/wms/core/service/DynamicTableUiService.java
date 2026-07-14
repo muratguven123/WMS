@@ -146,9 +146,12 @@ public class DynamicTableUiService {
         boolean forceHidden = false;
         boolean forceVisible = false;
 
+        // Kazanan: önce spesifiklik (dolu boyut sayısı), eşitlikte priority
+        // (İş İsteri 2.1, Madde 8.3 — DynamicUiService ile aynı semantik)
         ColumnBehaviorRule winning = columnRules.stream()
                 .filter(r -> matchesColumnRule(r, context))
-                .max(Comparator.comparingInt(ColumnBehaviorRule::getPriority))
+                .max(Comparator.comparingInt(DynamicTableUiService::specificityScore)
+                        .thenComparingInt(ColumnBehaviorRule::getPriority))
                 .orElse(null);
 
         if (winning != null) {
@@ -188,10 +191,30 @@ public class DynamicTableUiService {
 
     private boolean matchesColumnRule(ColumnBehaviorRule rule, UiContext ctx) {
         return nullOrEquals(rule.getRoleId(), ctx.roleId())
-                && nullOrEquals(rule.getCompanyId(), ctx.companyId());
+                && nullOrEquals(rule.getCompanyId(), ctx.companyId())
+                && nullOrEquals(rule.getWarehouseId(), ctx.warehouseId())
+                && nullOrEqualsStr(rule.getCustomerType(), ctx.customerType())
+                && nullOrEqualsStr(rule.getProductType(), ctx.productType())
+                && nullOrEqualsStr(rule.getTransactionStatus(), ctx.transactionStatus());
+    }
+
+    /** Spesifiklik skoru = dolu (non-null) bağlam boyutu sayısı. */
+    static int specificityScore(ColumnBehaviorRule rule) {
+        int score = 0;
+        if (rule.getRoleId()            != null) score++;
+        if (rule.getCompanyId()         != null) score++;
+        if (rule.getWarehouseId()       != null) score++;
+        if (rule.getCustomerType()      != null) score++;
+        if (rule.getProductType()       != null) score++;
+        if (rule.getTransactionStatus() != null) score++;
+        return score;
     }
 
     private boolean nullOrEquals(Long ruleValue, Long ctxValue) {
+        return ruleValue == null || ruleValue.equals(ctxValue);
+    }
+
+    private boolean nullOrEqualsStr(String ruleValue, String ctxValue) {
         return ruleValue == null || ruleValue.equals(ctxValue);
     }
 
