@@ -12,6 +12,7 @@ import com.wms.outbound.entity.enums.OutboundOrderStatus;
 import com.wms.outbound.entity.enums.ShipmentItemStatus;
 import com.wms.outbound.entity.enums.ShipmentStatus;
 import com.wms.outbound.exception.BusinessException;
+import com.wms.outbound.integration.CoreServiceClient;
 import com.wms.outbound.integration.InventoryServiceClient;
 import com.wms.outbound.integration.carrier.CarrierIntegrationService;
 import com.wms.outbound.repository.OutboundOrderRepository;
@@ -59,6 +60,9 @@ class ShipmentServiceTest {
 
     @Mock
     private ObjectMapper objectMapper;
+
+    @Mock
+    private CoreServiceClient coreServiceClient;
 
     @InjectMocks
     private ShipmentService shipmentService;

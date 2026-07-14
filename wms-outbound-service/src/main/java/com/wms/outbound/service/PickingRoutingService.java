@@ -60,6 +60,8 @@ public class PickingRoutingService {
         TenantScopeGuard.assertMatchesContext(warehouseLocationId);
         warehouseLocationId = activeWarehouseId;
 
+        coreServiceClient.enforceWorkflowStep("OUTBOUND", "PICKING", null, "PICKING_LIST");
+
         log.info("Starting Picking List creation for orders: {} in warehouse: {}",
                 outboundOrderIds, warehouseLocationId);
 

@@ -34,6 +34,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -94,6 +95,11 @@ class PickingRoutingServiceTest {
                 .build();
 
         order.setItems(List.of(item1, item2));
+
+        when(coreServiceClient.enforceWorkflowStep(anyString(), anyString(), any(), anyString()))
+                .thenReturn(new com.wms.outbound.dto.WorkflowEnforceResponse(
+                        com.wms.outbound.dto.WorkflowEnforceResponse.Decision.BYPASSED,
+                        null, null, "OUTBOUND", "PICKING"));
     }
 
     @AfterEach

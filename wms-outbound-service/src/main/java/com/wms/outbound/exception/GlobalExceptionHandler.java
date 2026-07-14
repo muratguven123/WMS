@@ -15,4 +15,14 @@ public class GlobalExceptionHandler {
                 .status(ex.getStatus())
                 .body(Map.of("error", ex.getMessage()));
     }
+
+    @ExceptionHandler(ApprovalRequiredException.class)
+    public ResponseEntity<Map<String, Object>> handleApprovalRequired(ApprovalRequiredException ex) {
+        return ResponseEntity
+                .status(ex.getStatus())
+                .body(Map.of(
+                        "error", ex.getMessage(),
+                        "errorCode", "APPROVAL_REQUIRED",
+                        "approvalRequestId", ex.getApprovalRequestId()));
+    }
 }

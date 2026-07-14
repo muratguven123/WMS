@@ -15,6 +15,7 @@ import com.wms.outbound.entity.enums.OutboxStatus;
 import com.wms.outbound.entity.enums.PickingItemStatus;
 import com.wms.outbound.entity.enums.PickingListStatus;
 import com.wms.outbound.exception.BusinessException;
+import com.wms.outbound.integration.CoreServiceClient;
 import com.wms.outbound.repository.OutboundOrderItemRepository;
 import com.wms.outbound.repository.OutboundOrderRepository;
 import com.wms.outbound.repository.OutboxMessageRepository;
@@ -46,6 +47,7 @@ public class PackingService {
     private final OutboundOrderItemRepository outboundOrderItemRepository;
     private final OutboxMessageRepository outboxMessageRepository;
     private final ObjectMapper objectMapper;
+    private final CoreServiceClient coreServiceClient;
 
     private final Random random = new Random();
 
@@ -55,6 +57,8 @@ public class PackingService {
     @Transactional
     public PackingVerifyResponse verifyPackingItem(PackingVerifyRequest request) {
         log.info("Verifying product scan: {} in picking list: {}", request.productBarcode(), request.pickingListId());
+
+        coreServiceClient.enforceWorkflowStep("OUTBOUND", "PACKING", request.pickingListId(), "PACKING");
 
         PickingList list = requireTenantPickingList(request.pickingListId());
 
@@ -122,6 +126,8 @@ public class PackingService {
     @Transactional
     public CloseBoxResponse closeBox(Long pickingListId) {
         log.info("Closing box for picking list: {}", pickingListId);
+
+        coreServiceClient.enforceWorkflowStep("OUTBOUND", "PACKING", pickingListId, "PACKING");
 
         PickingList pickingList = requireTenantPickingList(pickingListId);
 

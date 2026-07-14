@@ -6,6 +6,7 @@ import com.wms.outbound.entity.PickingList;
 import com.wms.outbound.entity.enums.PickingItemStatus;
 import com.wms.outbound.entity.enums.PickingListStatus;
 import com.wms.outbound.exception.BusinessException;
+import com.wms.outbound.integration.CoreServiceClient;
 import com.wms.outbound.messaging.TaskEventPublisher;
 import com.wms.outbound.repository.PickingListRepository;
 import com.wms.outbound.security.TenantContextHolder;
@@ -28,6 +29,7 @@ public class PickingTaskService {
     private final PickingListRepository pickingListRepository;
     private final PickingRoutingService pickingRoutingService;
     private final TaskEventPublisher taskEventPublisher;
+    private final CoreServiceClient coreServiceClient;
 
     @Transactional(readOnly = true)
     public List<PickingListResponse> listMyTasks() {
@@ -77,6 +79,8 @@ public class PickingTaskService {
     public PickingListResponse start(Long pickingListId) {
         Long userId = TenantContextHolder.getUserId();
         PickingList list = requireList(pickingListId);
+
+        coreServiceClient.enforceWorkflowStep("OUTBOUND", "PICKING", pickingListId, "PICKING_LIST");
 
         if (list.getAssignedUserId() != null && !list.getAssignedUserId().equals(userId)) {
             throw new BusinessException("Task is assigned to another operator", HttpStatus.FORBIDDEN);

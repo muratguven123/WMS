@@ -18,6 +18,7 @@ import com.wms.outbound.entity.enums.OutboxStatus;
 import com.wms.outbound.entity.enums.ShipmentItemStatus;
 import com.wms.outbound.entity.enums.ShipmentStatus;
 import com.wms.outbound.exception.BusinessException;
+import com.wms.outbound.integration.CoreServiceClient;
 import com.wms.outbound.integration.InventoryServiceClient;
 import com.wms.outbound.integration.carrier.CarrierIntegrationService;
 import com.wms.outbound.repository.OutboundOrderRepository;
@@ -52,6 +53,7 @@ public class ShipmentService {
     private final InventoryServiceClient inventoryServiceClient;
     private final CarrierIntegrationService carrierIntegrationService;
     private final ObjectMapper objectMapper;
+    private final CoreServiceClient coreServiceClient;
 
     @Transactional(readOnly = true)
     public Page<ShipmentSummaryDto> listShipments(Pageable pageable) {
@@ -67,6 +69,9 @@ public class ShipmentService {
         TenantScopeGuard.assertMatchesContext(request.warehouseLocationId());
         Long warehouseLocationId = TenantScopeGuard.requireWarehouseLocationId();
         Long companyId = TenantScopeGuard.requireCompanyId();
+
+        coreServiceClient.enforceWorkflowStep("OUTBOUND", "SHIPPING", null, "SHIPMENT");
+
         if (shipmentRepository.findByShipmentNumber(request.shipmentNumber()).isPresent()) {
             throw new BusinessException(
                     "Shipment number already exists: " + request.shipmentNumber(), HttpStatus.BAD_REQUEST);
@@ -160,6 +165,8 @@ public class ShipmentService {
 
         Shipment shipment = shipmentRepository.findWithDetailsById(shipmentId)
                 .orElseThrow(() -> new BusinessException("Shipment not found: " + shipmentId, HttpStatus.NOT_FOUND));
+
+        coreServiceClient.enforceWorkflowStep("OUTBOUND", "SHIPPING", shipmentId, "SHIPMENT");
 
         if (shipment.getStatus() == ShipmentStatus.DISPATCHED) {
             throw new BusinessException("Shipment is already dispatched!", HttpStatus.BAD_REQUEST);

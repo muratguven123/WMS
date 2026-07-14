@@ -11,6 +11,7 @@ import com.wms.outbound.entity.enums.OutboxStatus;
 import com.wms.outbound.entity.enums.PickingItemStatus;
 import com.wms.outbound.entity.enums.PickingListStatus;
 import com.wms.outbound.exception.BusinessException;
+import com.wms.outbound.integration.CoreServiceClient;
 import com.wms.outbound.repository.*;
 import com.wms.outbound.security.TenantContext;
 import com.wms.outbound.security.TenantContextHolder;
@@ -19,11 +20,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import com.wms.outbound.config.OutboundTestMessagingConfig;
+import com.wms.outbound.dto.WorkflowEnforceResponse;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,6 +34,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -55,6 +60,9 @@ class PackingServiceTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private CoreServiceClient coreServiceClient;
 
     private PickingList pickingList;
     private PickingItem pickingItem1;
@@ -126,6 +134,10 @@ class PackingServiceTest {
         pickingList.setItems(new java.util.ArrayList<>(List.of(pickingItem1, pickingItem2)));
         pickingListRepository.save(pickingList);
         TenantContextHolder.setContext(new TenantContext(1L, 1L, 1L));
+
+        when(coreServiceClient.enforceWorkflowStep(anyString(), anyString(), any(), anyString()))
+                .thenReturn(new WorkflowEnforceResponse(
+                        WorkflowEnforceResponse.Decision.BYPASSED, null, null, "OUTBOUND", "PACKING"));
     }
 
     @AfterEach
