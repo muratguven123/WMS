@@ -48,7 +48,9 @@ public class FinancialTransactionService {
                 transactionCurrency.getCode(),
                 baseCurrency.getCode(),
                 request.transactionDate(),
-                rateType
+                rateType,
+                request.customerId(),
+                request.contractId()
         );
 
         Contract contract = request.contractId() != null

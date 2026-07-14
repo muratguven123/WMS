@@ -52,6 +52,7 @@ public class CurrencyConversionService {
     private final ExchangeRateRepository exchangeRateRepository;
     private final CurrencyRepository currencyRepository;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final CustomerRateService customerRateService;
 
     @Transactional(readOnly = true)
     public ConversionResultDto convert(
@@ -60,6 +61,19 @@ public class CurrencyConversionService {
             String targetCurrency,
             Instant transactionDate,
             String rateType
+    ) {
+        return convert(amount, sourceCurrency, targetCurrency, transactionDate, rateType, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    public ConversionResultDto convert(
+            BigDecimal amount,
+            String sourceCurrency,
+            String targetCurrency,
+            Instant transactionDate,
+            String rateType,
+            Long customerId,
+            Long contractId
     ) {
         Objects.requireNonNull(amount, "amount");
         Objects.requireNonNull(transactionDate, "transactionDate");
@@ -75,25 +89,43 @@ public class CurrencyConversionService {
             return new ConversionResultDto(amount, source, target, BigDecimal.ONE, rounded, date, false);
         }
 
-        LocalDate requestedDate = transactionDate.atZone(ZoneOffset.UTC).toLocalDate();
-        RateLookup lookup = resolveRate(source, target, requestedDate, type);
+        BigDecimal rateValue;
+        LocalDate rateDate;
+        boolean fallback;
+
+        if (customerId != null) {
+            var customerRate = customerRateService.getCustomerRate(customerId, source, target, transactionDate, contractId);
+            rateValue = customerRate.rate();
+            rateDate = customerRate.rateDate();
+            fallback = customerRate.fallbackUsed();
+        } else {
+            LocalDate requestedDate = transactionDate.atZone(ZoneOffset.UTC).toLocalDate();
+            RateLookup lookup = resolveRate(source, target, requestedDate, type);
+            rateValue = lookup.rate();
+            rateDate = lookup.rateDate();
+            fallback = lookup.fallback();
+        }
 
         Currency targetCurrencyEntity = loadCurrency(target);
-        BigDecimal converted = round(amount.multiply(lookup.rate()), targetCurrencyEntity.getDecimalPlaces());
+        BigDecimal converted = round(amount.multiply(rateValue), targetCurrencyEntity.getDecimalPlaces());
 
-        if (lookup.fallback()) {
+        if (fallback) {
             log.warn("Alternatif kur kullanıldı: {} -> {} type={} requested={} used={}",
-                    source, target, type, requestedDate, lookup.rateDate());
+                    source, target, type, transactionDate.atZone(ZoneOffset.UTC).toLocalDate(), rateDate);
         }
 
         return new ConversionResultDto(
-                amount, source, target, lookup.rate(), converted, lookup.rateDate(), lookup.fallback());
+                amount, source, target, rateValue, converted, rateDate, fallback);
     }
 
     /**
      * Faturalama ve diğer servisler için kur değeri sorgusu (tutar çevrimi yapmadan).
      */
-    @Transactional(readOnly = true)
+    /**
+     * İş kuralı: kur bulunamaması beklenen bir sonuçtur; çağıran taraf
+     * (ör. aktif kur listesi) yakalayıp devam edebilsin diye rollback tetiklemez.
+     */
+    @Transactional(readOnly = true, noRollbackFor = ExchangeRateNotFoundException.class)
     public ExchangeRateDto lookupRate(
             String sourceCurrency,
             String targetCurrency,

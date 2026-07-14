@@ -22,4 +22,7 @@ public class SystemConfig {
     @JoinColumn(name = "default_currency_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_system_config_currency"))
     private Currency defaultCurrency;
+
+    @Column(name = "strict_customer_rate", nullable = false)
+    private boolean strictCustomerRate = false;
 }

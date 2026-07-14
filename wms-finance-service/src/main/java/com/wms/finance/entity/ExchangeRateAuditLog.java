@@ -25,10 +25,20 @@ public class ExchangeRateAuditLog {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "exchange_rate_id", nullable = false,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exchange_rate_id", nullable = true,
             foreignKey = @ForeignKey(name = "fk_eral_exchange_rate"))
     private ExchangeRate exchangeRate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contract_fixed_rate_id", nullable = true,
+            foreignKey = @ForeignKey(name = "fk_eral_contract_fixed_rate"))
+    private ContractFixedRate contractFixedRate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_exchange_rate_id", nullable = true,
+            foreignKey = @ForeignKey(name = "fk_eral_customer_exchange_rate"))
+    private CustomerExchangeRate customerExchangeRate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "action_type", nullable = false, length = 20)

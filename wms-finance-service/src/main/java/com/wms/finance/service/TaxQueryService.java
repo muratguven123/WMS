@@ -1,5 +1,6 @@
 package com.wms.finance.service;
 
+import com.wms.finance.dto.ExchangeDifferenceTaxRequest;
 import com.wms.finance.dto.TaxCalculateRequest;
 import com.wms.finance.dto.TaxCalculateResponse;
 import com.wms.finance.dto.TaxRateListItemDto;
@@ -121,6 +122,24 @@ public class TaxQueryService {
                 result.taxTypeCode(),
                 ratePercent,
                 inclusive);
+    }
+
+    @Transactional
+    public TaxCalculateResponse calculateExchangeDifferenceTax(ExchangeDifferenceTaxRequest request) {
+        TaxCalculationResultDto result = taxEngineService.calculateExchangeDifferenceTax(
+                request.exchangeDifferenceAmount(),
+                request.taxTypeCode(),
+                request.date(),
+                request.locationId(),
+                request.countryId());
+
+        return new TaxCalculateResponse(
+                result.baseAmount(),
+                result.taxAmount(),
+                result.grandTotal(),
+                result.taxTypeCode(),
+                null,
+                false);
     }
 
     private TaxRateListItemDto toListItem(TaxRate rate) {

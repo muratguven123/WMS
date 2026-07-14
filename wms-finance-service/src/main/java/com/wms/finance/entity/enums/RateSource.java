@@ -5,5 +5,6 @@ public enum RateSource {
     MANUAL,
     ERP,
     BANK,
-    CONTRACT
+    CONTRACT,
+    CUSTOMER
 }

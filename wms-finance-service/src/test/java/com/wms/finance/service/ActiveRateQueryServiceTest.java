@@ -62,7 +62,7 @@ class ActiveRateQueryServiceTest {
     }
 
     @Test
-    @DisplayName("Kur bulunamayan döviz atlanır, liste kısmi döner")
+    @DisplayName("Kur bulunamayan döviz atlanır, liste kısmi döner (rollback-only olmaz)")
     void listActiveRates_skipsMissingRates() {
         LocalDate date = LocalDate.of(2026, 7, 7);
         Currency usd = Currency.builder().code("USD").active(true).build();

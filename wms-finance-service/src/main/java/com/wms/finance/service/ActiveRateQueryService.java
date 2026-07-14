@@ -9,7 +9,6 @@ import com.wms.finance.repository.ExchangeRateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,7 +28,11 @@ public class ActiveRateQueryService {
     private final CurrencyConversionService currencyConversionService;
     private final ExchangeRateRepository exchangeRateRepository;
 
-    @Transactional(readOnly = true)
+    /**
+     * Her kur lookup ayrı transaction'da çalışır; bulunamayan kurlar atlanır.
+     * Tek bir {@code @Transactional} altında nested lookup exception'ı
+     * transaction'ı rollback-only yapıp 500'e yol açmasın diye burada TX açılmaz.
+     */
     public ActiveRateListDto listActiveRates(String baseCurrency, LocalDate rateDate, String rateType) {
         String base = baseCurrency.trim().toUpperCase();
         LocalDate effectiveDate = rateDate != null ? rateDate : LocalDate.now(ISTANBUL);

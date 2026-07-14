@@ -1,5 +1,6 @@
 package com.wms.finance.service;
 
+import com.wms.finance.entity.Contract;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,5 +20,15 @@ public class ContractCurrencyValidator {
 
     public void validateContractCurrency(Long customerId, Long currencyId) {
         customerCurrencyValidator.validateCurrencyPermission(customerId, currencyId);
+    }
+
+    public void validateFixedRateCurrencies(Contract contract, Long sourceCurrencyId, Long targetCurrencyId) {
+        Long contractCurrencyId = contract.getCurrency().getId();
+        if (!sourceCurrencyId.equals(contractCurrencyId) && !targetCurrencyId.equals(contractCurrencyId)) {
+            throw new IllegalArgumentException(
+                    "Fixed rate currencies must be consistent with the contract currency: " + contract.getCurrency().getCode());
+        }
+        customerCurrencyValidator.validateCurrencyPermission(contract.getCustomer().getId(), sourceCurrencyId);
+        customerCurrencyValidator.validateCurrencyPermission(contract.getCustomer().getId(), targetCurrencyId);
     }
 }
