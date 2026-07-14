@@ -8,6 +8,7 @@ import com.wms.inventory.entity.enums.InventoryStatus;
 import com.wms.inventory.entity.enums.InventoryTransactionType;
 import com.wms.inventory.exception.BusinessException;
 import com.wms.inventory.integration.CoreServiceClient;
+import com.wms.inventory.integration.IntegrationServiceClient;
 import com.wms.inventory.messaging.StockChangedEventFactory;
 import com.wms.inventory.repository.InventoryRepository;
 import com.wms.inventory.repository.InventoryTransactionRepository;
@@ -30,6 +31,7 @@ public class InventoryMoveService {
     private final InventoryRepository inventoryRepository;
     private final InventoryTransactionRepository transactionRepository;
     private final CoreServiceClient coreServiceClient;
+    private final IntegrationServiceClient integrationServiceClient;
     private final ProductDimensionResolver dimensionResolver;
     private final StockChangedEventFactory stockChangedEventFactory;
 
@@ -275,6 +277,14 @@ public class InventoryMoveService {
                     request.actualQuantity(),
                     varianceQuantity,
                     "ADJUSTMENT");
+
+            integrationServiceClient.enqueueCountResult(
+                    publishCompanyId,
+                    publishWarehouseId,
+                    tx.getId() != null ? tx.getId() : request.storageLocationId(),
+                    request.productCode(),
+                    systemQuantity,
+                    request.actualQuantity());
 
             log.info("Adjusted product {} at {}. Variance: {}",
                     request.productCode(), request.storageLocationId(), varianceQuantity);

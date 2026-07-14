@@ -19,6 +19,9 @@ public class WebClientConfig {
     @Value("${wms.core-service.url:http://localhost:8081}")
     private String coreServiceUrl;
 
+    @Value("${wms.integration-service.url:http://localhost:8085}")
+    private String integrationServiceUrl;
+
     @Value("${wms.webclient.connect-timeout-ms:5000}")
     private int connectTimeoutMs;
 
@@ -31,6 +34,11 @@ public class WebClientConfig {
     @Bean
     public WebClient coreWebClient() {
         return buildWebClient(coreServiceUrl);
+    }
+
+    @Bean
+    public WebClient integrationWebClient() {
+        return buildWebClient(integrationServiceUrl);
     }
 
     private WebClient buildWebClient(String baseUrl) {
