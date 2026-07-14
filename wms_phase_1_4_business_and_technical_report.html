@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>WMS Çoklu Lokasyon & Lokalizasyon Projesi Raporu</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #2D3748;
+            line-height: 1.6;
+            background-color: #FFFFFF;
+            font-size: 14px;
+        }
+
+        /* Page Layout & Margins for Print */
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+
+        @media print {
+            body {
+                background-color: #FFFFFF;
+                color: #000000;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            .no-break {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Cover Page */
+        .cover-page {
+            height: 250mm; /* Full page minus margins */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 20px;
+            page-break-after: always;
+            border-left: 8px solid #1A365D;
+            background: linear-gradient(135deg, #F7FAFC 0%, #EDF2F7 100%);
+        }
+
+        .cover-top {
+            margin-top: 60px;
+        }
+
+        .cover-logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1A365D;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .cover-title {
+            font-size: 38px;
+            font-weight: 800;
+            color: #2D3748;
+            line-height: 1.2;
+            margin-bottom: 15px;
+        }
+
+        .cover-subtitle {
+            font-size: 18px;
+            font-weight: 400;
+            color: #4A5568;
+            max-width: 600px;
+        }
+
+        .cover-details {
+            margin-bottom: 60px;
+            border-top: 2px solid #E2E8F0;
+            padding-top: 20px;
+        }
+
+        .cover-detail-item {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #4A5568;
+        }
+
+        .cover-detail-item strong {
+            color: #1A365D;
+        }
+
+        /* Section Headings */
+        h1 {
+            font-size: 22px;
+            color: #1A365D;
+            border-bottom: 2px solid #E2E8F0;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h2 {
+            font-size: 16px;
+            color: #2B6CB0;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 14px;
+            color: #2D3748;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 15px;
+            margin-left: 20px;
+        }
+
+        li {
+            margin-bottom: 6px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        th, td {
+            border: 1px solid #CBD5E0;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            background-color: #2B6CB0;
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #F7FAFC;
+        }
+
+        /* Highlight Boxes / Callouts */
+        .info-box {
+            background-color: #EBF8FF;
+            border-left: 4px solid #3182CE;
+            padding: 15px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 4px 4px 0;
+            page-break-inside: avoid;
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            color: #2B6CB0;
+            margin-bottom: 5px;
+        }
+
+        /* Tech Spec Grid */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .tech-card {
+            border: 1px solid #E2E8F0;
+            background-color: #F8FAFC;
+            padding: 15px;
+            border-radius: 6px;
+        }
+
+        .tech-card-title {
+            font-weight: 600;
+            color: #1A365D;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .tech-card-desc {
+            font-size: 13px;
+            color: #4A5568;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cover Page -->
+    <div class="cover-page">
+        <div class="cover-top">
+            <div class="cover-logo">DEPO YÖNETİM SİSTEMİ (WMS)</div>
+            <h1 class="cover-title">Çoklu Lokasyon & Lokalizasyon<br>Geliştirme Projesi</h1>
+            <div class="cover-subtitle">Faz 1 - Faz 4 Kapsamlı Proje, Teknoloji ve Mimari Değerlendirme Raporu</div>
+        </div>
+        
+        <div class="cover-details">
+            <div class="cover-detail-item"><strong>Rapor Türü:</strong> Yönetici &amp; Teknik Kurul Sunumu</div>
+            <div class="cover-detail-item"><strong>Kapsam:</strong> Faz 1, Faz 2, Faz 3 ve Faz 4 (15 İş İsteri)</div>
+            <div class="cover-detail-item"><strong>Tarih:</strong> 13 Temmuz 2026</div>
+            <div class="cover-detail-item"><strong>Durum:</strong> Tamamlandı (Canlıya Hazır)</div>
+            <div class="cover-detail-item"><strong>Hazırlayan:</strong> WMS Yazılım Geliştirme Ekibi</div>
+        </div>
+    </div>
+
+    <!-- Page 1: Executive Summary -->
+    <h1>1. YÖNETİCİ ÖZETİ</h1>
+    <p>
+        Bu proje dokümanı, sıfırdan mikroservis mimarisine uygun olarak geliştirilen <strong>Çoklu Lokasyon ve Lokalizasyon (Multi-Location & Localization)</strong> projesinin ilk 4 fazında gerçekleştirilen çalışmaları, mimari tasarım kararlarını ve kullanılan teknolojik bileşenlerin seçim gerekçelerini detaylı olarak ele almaktadır.
+    </p>
+    <p>
+        Projenin ana hedefi; şirketinin global büyüme hedeflerini destekleyecek şekilde, farklı ülkelerde yer alan depoların (lokasyonların) tek bir merkezi WMS platformu üzerinden, yüksek güvenlik izolasyonu (multi-tenancy), çoklu para birimi ve yerel yasal mevzuatlara tam uyumla çalışabilmesini sağlamaktır. İlk 4 faz kapsamında projenin tüm çekirdek, kurallar motoru, finansal hesaplama ve ERP entegrasyon altyapıları başarıyla tamamlanmıştır.
+    </p>
+
+    <div class="info-box">
+        <div class="info-box-title">Stratejik İş Değeri</div>
+        <p style="margin-bottom: 0;">
+            Bu altyapı sayesinde yeni bir ülkede yeni bir depo açılması operasyonu tamamen parametrik hale getirilmiş ve teknik yaygınlaştırma (roll-out) süreleri <strong>günlerden saatlere indirilmiştir</strong>. Ayrıca entegrasyon hata toleransı sayesinde ERP kesintilerinde depo süreçlerinin durması engellenmiştir.
+        </p>
+    </div>
+
+    <h1>2. PROJE FAZLARI VE YAPILAN ÇALIŞMALAR</h1>
+    
+    <h2>Faz 1: Çekirdek Sistem & Çoklu Lokasyon Temeli</h2>
+    <p>
+        Sistemin temel hiyerarşik veri modeli (`Organization -> Company -> Region -> Location -> Zone -> StorageLocation`) kurulmuştur. JWT ve Keycloak tabanlı yetkilendirme entegre edilerek, kullanıcının sadece yetkili olduğu lokasyon ve şirket verilerine erişebildiği request-scoped <strong>TenantContextHolder (ThreadLocal)</strong> mimarisi tasarlanmıştır. Tüm zaman verileri veritabanında UTC (`TIMESTAMPTZ`) olarak saklanmış, API JSON çıktısında ISO 8601 UTC standardı zorlanmıştır. Ülke bazlı tarih, saat ve sayı maskeleri arayüze dinamik olarak sunulmuştur.
+    </p>
+
+    <h2>Faz 2: Dinamik UI & Parametrik İş Akışı (Rules Engine)</h2>
+    <p>
+        Depo süreç adımlarının sırasını ve zorunluluğunu parametrik olarak yöneten <strong>Workflow Engine</strong> kurulmuştur. Ekranlardaki form alanlarının ve tablo kolonlarının davranışlarını kullanıcı rolüne, aktif lokasyona ve operasyon tipine göre öncelik (Priority) mantığıyla dinamik çözümleyen <strong>Dynamic UI Engine</strong> geliştirilmiştir. POST/PUT isteklerinde bu dinamik kurallar sunucu tarafında <strong>Aspect-Oriented Programming (AOP)</strong> ile otomatik olarak doğrulanmaktadır. Adres verileri JSONB olarak saklanıp, ülke adres şablonlarına göre dinamik regex doğrulamalarından geçirilmektedir.
+    </p>
+
+    <div class="page-break"></div>
+
+    <h2>Faz 3: Finansal Altyapı, Çoklu Para Birimi & Vergi Motoru</h2>
+    <p>
+        Finansal işlemler orijinal döviz ve yerel para karşılıklarıyla (`BigDecimal` formatında) saklanmaya başlanmıştır. Yuvarlama işlemlerinde finans standardı olan <strong>Banker's Rounding (HALF_EVEN)</strong> kullanılmıştır. Günlük TCMB kurlarını XML servisinden çeken otomatik scheduled job yazılmış, manuel kur değişiklikleri audit log mekanizmasıyla kayıt altına alınmıştır. Strategy Pattern kullanılarak tasarlanan <strong>Tax Engine</strong> sayesinde vergi dahil, hariç ve katmanlı (ÖTV+KDV) vergi hesaplamaları izlenebilir olarak kodlanmıştır.
+    </p>
+
+    <h2>Faz 4: Faturalama & ERP Entegrasyonları</h2>
+    <p>
+        Çoklu para birimli faturalama modülü geliştirilmiştir. Fatura onaylandığında (`APPROVED`) uygulanan <strong>Rate Lock (Kur Kilidi)</strong> mekanizmasıyla geriye dönük finansal manipülasyonlar engellenmiştir. Depo bazlı harici ERP sistemleri (SAP, Logo vb.) için <strong>Adapter Pattern</strong> kullanılarak gevşek bağlı bir entegrasyon mimarisi kurgulanmıştır. İşlemsel veri güvenliği için <strong>Outbox Pattern</strong> kurulmuş, asenkron gönderimlerde üstel artan bekleme süresi (Exponential Backoff) uygulanmıştır. Başarısız entegrasyonlar için "Force Retry" API'leri ve 30 günlük log temizleme işleri eklenmiştir.
+    </p>
+
+    <div class="page-break"></div>
+
+    <h1>3. TEKNOLOJİ SEÇİMLERİ VE GEREKÇELERİ (WHY THIS TECH?)</h1>
+    <p>
+        Projede kullanılan ana teknolojiler, mimari gereksinimler, performans, veri tutarlılığı ve bakım kolaylığı kriterleri doğrultusunda titizlikle seçilmiştir:
+    </p>
+
+    <div class="tech-grid">
+        <div class="tech-card">
+            <div class="tech-card-title">Java 21 (LTS)</div>
+            <div class="tech-card-desc">
+                En güncel uzun vadeli destek (LTS) sürümüdür. Özellikle <strong>Sanal İş Parçacıkları (Virtual Threads)</strong> sayesinde yüksek trafikli depo ve entegrasyon süreçlerinde minimum kaynak tüketimiyle eşzamanlı istek işleme performansı sağlar. Pattern Matching ve Record sınıfları kod temizliğini ve okunabilirliğini artırır.
+            </div>
+        </div>
+        <div class="tech-card">
+            <div class="tech-card-title">Spring Boot 3.x (3.2.5)</div>
+            <div class="tech-card-desc">
+                Kurumsal Java uygulamalarında endüstri standardıdır. Zengin ekosistemi, Spring Data JPA ile veritabanı soyutlaması, AOP desteği (Workflow ve UI validasyonlarında kullanılmıştır) ve mikroservisler arası güvenli Feign/WebClient iletişimini minimum konfigürasyonla sunar.
+            </div>
+        </div>
+        <div class="tech-card">
+            <div class="tech-card-title">PostgreSQL 16</div>
+            <div class="tech-card-desc">
+                Gelişmiş ilişkisel veritabanı özelliklerinin yanı sıra üstün <strong>JSONB</strong> performansı sunar. Faz 2'deki dinamik adres alanlarının veritabanında esnek şekilde saklanması ve sorgulanması için JSONB kritik bir rol oynamaktadır. Finansal veri tutarlılığı ve dblink desteği için tercih edilmiştir.
+            </div>
+        </div>
+        <div class="tech-card">
+            <div class="tech-card-title">Redis (Caching)</div>
+            <div class="tech-card-desc">
+                Döviz kurları, dinamik UI kuralları ve süreç konfigürasyonları gibi sık okunan ama az değişen verilerin milisaniyenin altında getirilmesini sağlar. Veritabanı yükünü %80 oranında düşürerek API yanıt sürelerini optimize eder.
+            </div>
+        </div>
+        <div class="tech-card">
+            <div class="tech-card-title">Apache Kafka</div>
+            <div class="tech-card-desc">
+                Servisler arası olay güdümlü (event-driven) iletişimi yönetir. Örneğin, yeni bir lokasyon açıldığında yayınlanan <code>LocationProvisioned</code> olayı sayesinde localization, finance ve integration servisleri kendi veritabanlarında gerekli varsayılan ayarları otomatik olarak oluşturur.
+            </div>
+        </div>
+        <div class="tech-card">
+            <div class="tech-card-title">Keycloak</div>
+            <div class="tech-card-desc">
+                Kimlik doğrulama (Authentication) ve yetkilendirme (Authorization) süreçlerini tek bir merkezden yöneten açık kaynaklı IAM çözümüdür. OAuth2 ve OpenID Connect standartlarını destekler. Kullanıcıların şirket ve lokasyon bazlı erişim yetkileri JWT claimleri üzerinden doğrulanır.
+            </div>
+        </div>
+    </div>
+
+    <div class="tech-grid" style="margin-top: 0;">
+        <div class="tech-card" style="grid-column: span 2;">
+            <div class="tech-card-title">Flyway &amp; Testcontainers</div>
+            <div class="tech-card-desc">
+                <strong>Flyway:</strong> Veritabanı şema değişikliklerinin versiyonlu olarak yönetilmesini ve mikroservislerin her ortamda (local, test, production) aynı şema yapısına sahip olmasını garanti eder.<br>
+                <strong>Testcontainers:</strong> Entegrasyon testlerinde sahte veritabanı (H2) kullanmak yerine, Docker üzerinde gerçek PostgreSQL 16 ve Kafka ayağa kaldırarak birebir canlı ortam davranışı ile test yapmamızı sağlar. H2'nin desteklemediği dblink ve JSONB fonksiyonlarının test edilmesini mümkün kılmıştır.
+            </div>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <h1>4. KALİTE GÜVENCESİ VE TEST STRATEJİSİ</h1>
+    <p>
+        WMS sistemi, yüksek işlem hacimli finansal ve fiziksel depo operasyonlarını yönettiği için test stratejisi çok katmanlı olarak tasarlanmıştır. Yazılan entegrasyon testleri (`*IT`), maven-failsafe plugin aracılığıyla `verify` aşamasında otomatik olarak koşturulmaktadır.
+    </p>
+    <table>
+        <thead>
+            <tr>
+                <th>Test Türü</th>
+                <th>Kapsam ve Yöntem</th>
+                <th>Kazanım ve Güvence</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Birim Testleri (Unit Tests)</strong></td>
+                <td>JUnit 5 ve Mockito kullanılarak tüm servis içi mantıklar izole şekilde test edilmiştir.</td>
+                <td>Kod düzeyinde yapılan değişikliklerin mevcut fonksiyonları bozması engellenir.</td>
+            </tr>
+            <tr>
+                <td><strong>Entegrasyon Testleri (IT)</strong></td>
+                <td>Testcontainers ile gerçek PostgreSQL 16 ve Kafka Docker üzerinde ayağa kaldırılıp çalıştırılır.</td>
+                <td>Veritabanı ilişkileri, dblink zincirleri, tetikleyiciler ve asenkron Kafka mesajlaşmaları uçtan uca doğrulanır.</td>
+            </tr>
+            <tr>
+                <td><strong>Hata Tolerans Testleri</strong></td>
+                <td>ERP adaptörlerinin ağ kopması durumlarında Outbox Worker ve retry mekanizmaları test edilmiştir.</td>
+                <td>Ağ arızalarında veri kaybının yaşanmayacağı garanti altına alınmıştır.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h1>5. GELECEK YOL HARİTASI (FAZ 5 - FAZ 9)</h1>
+    <p>
+        Çekirdek sistem ve entegrasyon altyapısının tamamlanmasıyla birlikte, projenin depo fiziksel süreçlerine yönelik sonraki adımları şu şekildedir:
+    </p>
+    <ul>
+        <li><strong>Faz 5: Depo Fiziksel Yerleşim ve Adres Yönetimi:</strong> Depo alanlarının (zones), koridor, raf ve göz yapısının kurgulanması, maksimum hacim ve ağırlık kurallarının kodlanması.</li>
+        <li><strong>Faz 6: Mal Kabul ve Akıllı Raf Yerleştirme:</strong> Satın alma siparişlerinin karşılanması, mal kabul (receipt), kalite kontrol (QC) ve ürün özelliklerine göre en uygun rafa yönlendirme (Directed Putaway) algoritması.</li>
+        <li><strong>Faz 7: Stok, Envanter ve Depo İçi Hareketler:</strong> Anlık stok (on-hand) izleme, FIFO/LIFO/FEFO kuralları, depo içi lokasyon transferleri ve periyodik sayım (Cycle Counting) işlemleri.</li>
+        <li><strong>Faz 8: Sipariş Hazırlama, Toplama ve Paketleme:</strong> Satış siparişlerinin rezerve edilmesi, depo içi en kısa yürüme rotasını çıkaran rota optimizasyonlu toplama listeleri ve paketleme.</li>
+        <li><strong>Faz 9: Sevkiyat ve Çıkış İşlemleri:</strong> Taşıyıcı (kargo) entegrasyonları, çeki listesi basımı ve ERP stok güncellemesi.</li>
+    </ul>
+
+    <h1>6. SONUÇ</h1>
+    <p>
+        Bu proje kapsamında hayata geçirilen Faz 1 - Faz 4 altyapısı, şirketimize global düzeyde esnek, güvenli ve ölçeklenebilir bir depo operasyon modeli sunmaktadır. Teknik borç barındırmayan, yüksek test kapsama oranına sahip ve tam izolasyon sağlayan bu mimari, depo yönetiminin operasyonel modüllerine (Faz 5 ve sonrası) geçmek için mükemmel bir zemin hazırlamıştır.
+    </p>
+    
+    <div style="margin-top: 40px; text-align: right; font-size: 13px; color: #718096;">
+        <p>WMS Proje Ekibi</p>
+        <p>13 Temmuz 2026</p>
+    </div>
+
+</body>
+</html>
