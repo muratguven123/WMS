@@ -26,7 +26,7 @@ INSERT INTO id_legacy_map (entity_type, old_uuid, new_id)
 SELECT entity_type, old_uuid, new_id
 FROM dblink(
     'host=localhost dbname=wms_finance_db user=postgres password=postgres',
-    'SELECT entity_type, old_uuid, new_id FROM finance.id_legacy_map WHERE entity_type = ''customer'''
+    'SELECT entity_type, old_uuid, new_id FROM public.id_legacy_map WHERE entity_type = ''customer'''
 ) AS t(entity_type VARCHAR(50), old_uuid UUID, new_id BIGINT)
 ON CONFLICT DO NOTHING;
 

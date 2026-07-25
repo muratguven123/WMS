@@ -33,7 +33,7 @@ SELECT
     steps.seq,
     steps.mandatory,
     steps.requires_approval,
-    steps.error_strategy,
+    steps.error_strategy::error_strategy,
     TRUE
 FROM location_process_configs lpc
 JOIN process_definitions pd ON pd.id = lpc.process_definition_id
