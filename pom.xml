@@ -26,6 +26,14 @@
         <springdoc.version>2.5.0</springdoc.version>
         <!-- mvn spring-boot:run -pl ${service.module} -->
         <service.module>wms-core-service</service.module>
+        <!--
+            JaCoCo kapsam kapısı taban eşikleri (BUNDLE, coveredratio).
+            Güvenli başlangıç: en zayıf modül (wms-integration-service: talimat %21.5, satır %26)
+            dahil TÜM modüller bunu hâlihazırda geçiyor; amaç kapsamın daha aşağı DÜŞMESİNİ önlemek.
+            Bir modül daha yükseğe ulaştıkça kendi pom'unda bu property'leri artırarak ratchet uygulayın.
+        -->
+        <jacoco.min.instruction>0.20</jacoco.min.instruction>
+        <jacoco.min.line>0.20</jacoco.min.line>
     </properties>
 
     <modules>
@@ -70,12 +78,84 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <!-- JaCoCo IT ajanını (prepare-agent-integration) IT JVM'ine bağlar;
+                         @{...} geç değerlendirme prepare-agent-integration çalıştıktan sonra çözülür. -->
+                    <argLine>@{failsafeArgLine}</argLine>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+                JaCoCo — test kapsamı ölçümü ve kapsam kapısı (ratchet).
+                * Unit (surefire) VE IT (failsafe) kapsamı aynı jacoco.exec dosyasına append edilir,
+                  böylece rapor gerçek birleşik kapsamı gösterir (repository/migration IT'leri dahil).
+                * 'check' her modülde BUNDLE seviyesinde minimum talimat + satır oranını zorlar.
+                  Eşikler property (jacoco.min.*) ile yönetilir; bir modül daha yüksek bir taban
+                  tutturduğunda kendi pom'unda property'yi yükselterek ratchet uygulanabilir.
+                * Başlangıç eşiği güvenli (tüm modüller hâlihazırda geçiyor); amaç kapsamın
+                  bir daha DÜŞMESİNİ engellemek. Sürüm Spring Boot BOM tarafından yönetilir.
+            -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>jacoco-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-prepare-agent-integration</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                        <configuration>
+                            <!-- IT kapsamını da aynı exec'e ekle (append), tek birleşik rapor için. -->
+                            <destFile>${project.build.directory}/jacoco.exec</destFile>
+                            <propertyName>failsafeArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>jacoco-report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>${jacoco.min.instruction}</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>${jacoco.min.line}</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
