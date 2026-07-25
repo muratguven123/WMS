@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class InventoryRepositoryTest {
+public class InventoryRepositoryTest extends com.wms.inventory.InventoryPostgresTestBase {
 
     @Autowired
     private InventoryRepository inventoryRepository;

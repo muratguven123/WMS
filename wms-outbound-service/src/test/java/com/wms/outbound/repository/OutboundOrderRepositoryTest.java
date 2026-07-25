@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ActiveProfiles("test")
 @Import(OutboundTestMessagingConfig.class)
 @Transactional
-class OutboundOrderRepositoryTest {
+class OutboundOrderRepositoryTest extends com.wms.outbound.OutboundPostgresTestBase {
 
     @Autowired
     private OutboundOrderRepository outboundOrderRepository;

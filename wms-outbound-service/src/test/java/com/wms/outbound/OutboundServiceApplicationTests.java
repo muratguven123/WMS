@@ -9,7 +9,7 @@ import com.wms.outbound.config.OutboundTestMessagingConfig;
 @SpringBootTest
 @ActiveProfiles("test")
 @Import(OutboundTestMessagingConfig.class)
-class OutboundServiceApplicationTests {
+class OutboundServiceApplicationTests extends OutboundPostgresTestBase {
 
     @Test
     void contextLoads() {

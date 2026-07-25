@@ -35,7 +35,7 @@ import static org.mockito.ArgumentMatchers.eq;
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
-public class InventoryMoveServiceTest {
+public class InventoryMoveServiceTest extends com.wms.inventory.InventoryPostgresTestBase {
 
     @Autowired
     private InventoryRepository inventoryRepository;

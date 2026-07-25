@@ -1,20 +1,16 @@
+# Test profili — datasource dinamik olarak OutboundPostgresTestBase (Testcontainers) tarafından sağlanır.
+# H2 kaldırıldı: yeni DB testleri yalnız gerçek PostgreSQL (Testcontainers) üzerinde koşar.
 spring:
   main:
     allow-bean-definition-overriding: true
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
-  datasource:
-    url: jdbc:h2:mem:wms_outbound_test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
         jdbc:
           time_zone: UTC
   flyway:

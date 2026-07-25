@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("test")
 @Import(OutboundTestMessagingConfig.class)
 @Transactional
-class PackingServiceTest {
+class PackingServiceTest extends com.wms.outbound.OutboundPostgresTestBase {
 
     @Autowired
     private PackingService packingService;

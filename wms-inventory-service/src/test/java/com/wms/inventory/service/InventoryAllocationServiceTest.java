@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
-public class InventoryAllocationServiceTest {
+public class InventoryAllocationServiceTest extends com.wms.inventory.InventoryPostgresTestBase {
 
     @Autowired
     private InventoryRepository inventoryRepository;
