@@ -15,7 +15,7 @@ public interface ReceiptRepository extends JpaRepository<Receipt, Long> {
 
     Optional<Receipt> findByReceiptNumber(String receiptNumber);
 
-    @EntityGraph(attributePaths = {"items", "inboundOrder", "inboundOrder.items"})
+    @EntityGraph(attributePaths = {"items", "inboundOrder"})
     Optional<Receipt> findWithDetailsById(Long id);
 
     @EntityGraph(attributePaths = {"items", "inboundOrder"})

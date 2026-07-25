@@ -57,7 +57,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 @Import({TenantFilterAspect.class, AopAutoConfiguration.class})
 @DisplayName("TenantFilterAspect — multi-tenant veri izolasyonu")
 class TenantFilterAspectIntegrationTest {

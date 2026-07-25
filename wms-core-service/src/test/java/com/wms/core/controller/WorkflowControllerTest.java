@@ -6,6 +6,7 @@ import com.wms.core.exception.GlobalExceptionHandler;
 import com.wms.core.security.TenantContext;
 import com.wms.core.security.TenantContextFilter;
 import com.wms.core.security.TenantContextHolder;
+import com.wms.core.service.WorkflowEnforcementService;
 import com.wms.core.service.WorkflowValidatorService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +39,7 @@ class WorkflowControllerTest {
     @Autowired private MockMvc mockMvc;
 
     @MockBean private WorkflowValidatorService workflowValidatorService;
+    @MockBean private WorkflowEnforcementService workflowEnforcementService;
     @MockBean private TenantContextFilter tenantContextFilter;
 
     @BeforeEach

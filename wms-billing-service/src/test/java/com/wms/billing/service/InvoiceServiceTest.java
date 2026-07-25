@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -72,7 +73,7 @@ class InvoiceServiceTest {
         InvoiceDto calculated = sampleCalculated();
 
         when(calculationService.calculateInvoice(any(), eq(CUSTOMER_ID), eq(LOCATION_ID),
-                eq("EUR"), eq(RATE_DATE))).thenReturn(calculated);
+                eq("EUR"), eq(RATE_DATE), isNull())).thenReturn(calculated);
         when(invoiceNumberGenerator.generate(LOCATION_ID)).thenReturn("INV-10-20260704-001");
         when(invoiceRepository.save(any(Invoice.class))).thenAnswer(inv -> {
             Invoice invc = inv.getArgument(0);
@@ -132,7 +133,7 @@ class InvoiceServiceTest {
     void calculatePreview_returnsPreview() {
         InvoiceDto calculated = sampleCalculated();
         when(calculationService.calculateInvoice(any(), eq(CUSTOMER_ID), eq(LOCATION_ID),
-                eq("EUR"), eq(RATE_DATE))).thenReturn(calculated);
+                eq("EUR"), eq(RATE_DATE), isNull())).thenReturn(calculated);
 
         InvoiceResponse response = invoiceService.calculatePreview(
                 CalculateInvoiceRequest.builder()

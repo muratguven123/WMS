@@ -5,6 +5,7 @@ import com.wms.finance.dto.TaxRateResponse;
 import com.wms.finance.dto.TaxRateUpdateRequest;
 import com.wms.finance.dto.TaxRateVersionResult;
 import com.wms.finance.exception.GlobalExceptionHandler;
+import com.wms.finance.service.ErpTaxImportService;
 import com.wms.finance.service.TaxQueryService;
 import com.wms.finance.service.TaxRateVersioningService;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +41,7 @@ class TaxRateControllerTest {
 
     @MockBean private TaxRateVersioningService versioningService;
     @MockBean private TaxQueryService taxQueryService;
+    @MockBean private ErpTaxImportService erpTaxImportService;
 
     @Test
     @DisplayName("POST /api/taxes/rates/update — vergi oranını günceller")
