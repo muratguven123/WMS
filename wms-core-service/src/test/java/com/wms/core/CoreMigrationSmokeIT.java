@@ -1,7 +1,6 @@
-package com.wms.outbound;
+package com.wms.core;
 
 import com.wms.testsupport.MigrationChainSupport;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,13 +18,18 @@ import java.util.LinkedHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Outbound Flyway migration'larını gerçek PostgreSQL 16 üzerinde uygular.
- * dblink zinciri: core → finance → localization → outbound. Docker gerektirir.
+ * Core Flyway migration'larını gerçek PostgreSQL 16 (Testcontainers) üzerinde uygular.
+ *
+ * <p>Core zincirin köküdür (upstream dblink bağımlılığı yoktur); bu yüzden tek DB
+ * {@code wms_core_db} üzerinde tüm göçler uygulanır. Şema TIMESTAMPTZ / JSONB /
+ * gen_random_uuid() ve BIGINT'e geçiş (V16) içerdiğinden H2 yerine üretim-eşi PostgreSQL
+ * kullanılır. Bu test, downstream servislerin (inbound/inventory/outbound/billing…) dblink
+ * zinciriyle bağlandığı core şemasının bütünlüğünü garanti eder. Docker gerektirir.
  */
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DisplayName("Outbound migration smoke")
-class OutboundMigrationSmokeIT {
+@DisplayName("Core migration smoke")
+class CoreMigrationSmokeIT {
 
     @Container
     @SuppressWarnings("resource")
@@ -36,12 +40,9 @@ class OutboundMigrationSmokeIT {
     private String jdbcUrl;
 
     @BeforeAll
-    void migrateChain() throws SQLException {
+    void migrate() throws SQLException {
         LinkedHashMap<String, String> chain = new LinkedHashMap<>();
-        chain.put("wms_core_db", MigrationChainSupport.moduleMigrations("wms-core-service"));
-        chain.put("wms_finance_db", MigrationChainSupport.moduleMigrations("wms-finance-service"));
-        chain.put("wms_localization_db", MigrationChainSupport.moduleMigrations("wms-localization-service"));
-        chain.put("wms_outbound_db", "classpath:db/migration");
+        chain.put("wms_core_db", "classpath:db/migration");
         jdbcUrl = MigrationChainSupport.migrateChain(postgres, chain);
     }
 
@@ -59,12 +60,31 @@ class OutboundMigrationSmokeIT {
     }
 
     @Test
-    @DisplayName("Çekirdek tablo (outbound_orders) şemada mevcut")
-    void keyTableExists() throws SQLException {
+    @DisplayName("Organizasyon çekirdek tabloları şemada mevcut")
+    void coreTablesExist() throws SQLException {
+        assertThat(regclass("public.organizations")).isNotNull();
+        assertThat(regclass("public.companies")).isNotNull();
+        assertThat(regclass("public.locations")).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Dinamik UI şeması (V10) şemada mevcut")
+    void dynamicUiTablesExist() throws SQLException {
+        assertThat(regclass("public.screens")).isNotNull();
+        assertThat(regclass("public.screen_fields")).isNotNull();
+    }
+
+    @Test
+    @DisplayName("BIGINT geçişi (V16) — legacy id eşleme tablosu mevcut")
+    void bigintMigrationApplied() throws SQLException {
+        assertThat(regclass("public.id_legacy_map")).isNotNull();
+    }
+
+    private String regclass(String table) throws SQLException {
         try (Connection conn = connect();
-             ResultSet rs = conn.createStatement().executeQuery("SELECT to_regclass('public.outbound_orders')")) {
+             ResultSet rs = conn.createStatement().executeQuery("SELECT to_regclass('" + table + "')")) {
             assertThat(rs.next()).isTrue();
-            assertThat(rs.getString(1)).isNotNull();
+            return rs.getString(1);
         }
     }
 

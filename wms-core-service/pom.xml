@@ -99,6 +99,12 @@
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.wms</groupId>
+            <artifactId>wms-test-support</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- OpenAPI / Swagger UI (springdoc) — surumu wms-parent dependencyManagement'a tasimak tercih edilir -->
         <dependency>
             <groupId>org.springdoc</groupId>

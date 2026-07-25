@@ -1,5 +1,7 @@
 package com.wms.integration;
 
+import com.wms.testsupport.MigrationChainSupport;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,9 +38,9 @@ class IntegrationMigrationSmokeIT {
     @BeforeAll
     void migrateChain() throws SQLException {
         LinkedHashMap<String, String> chain = new LinkedHashMap<>();
-        chain.put("wms_core_db", MigrationSmokeSupport.moduleMigrations("wms-core-service"));
+        chain.put("wms_core_db", MigrationChainSupport.moduleMigrations("wms-core-service"));
         chain.put("wms_integration_db", "classpath:db/migration");
-        jdbcUrl = MigrationSmokeSupport.migrateChain(postgres, chain);
+        jdbcUrl = MigrationChainSupport.migrateChain(postgres, chain);
     }
 
     @Test

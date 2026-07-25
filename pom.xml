@@ -29,6 +29,7 @@
     </properties>
 
     <modules>
+        <module>wms-test-support</module>
         <module>wms-common-events</module>
         <module>wms-core-service</module>
         <module>wms-localization-service</module>
