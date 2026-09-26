@@ -1,40 +1,119 @@
-# WMS — Warehouse Management System
+# WMS (Warehouse Management System)
 
-Microservice-based warehouse management platform with multi-tenant organization support, localization, finance/billing, inbound/outbound operations, and a React operator UI.
+WMS; çok kiracılı (multi-tenant), mikroservis mimarisinde geliştirilmiş bir depo yönetim platformudur.  
+Sistem; organizasyon ve kullanıcı yönetimi, lokalizasyon, finans/faturalama, entegrasyon ve depo operasyon (inbound/inventory/outbound) süreçlerini tek çatı altında sunar.
 
-## Architecture
+## Öne Çıkan Yetenekler
 
-| Service | Port | Responsibility |
-|---------|------|----------------|
-| `wms-core-service` | 8081 | Auth, org, users, dynamic UI, workflow, address master, stock |
-| `wms-localization-service` | 8082 | i18n, formats, address templates |
-| `wms-finance-service` | 8083 | FX rates, tax engine |
-| `wms-billing-service` | 8084 | Multi-currency invoicing |
-| `wms-integration-service` | 8085 | ERP adapters / outbox |
-| `wms-inbound-service` | 8086 | Receipts & putaway |
-| `wms-inventory-service` | 8087 | Inventory & transfers |
-| `wms-outbound-service` | 8088 | Picking, packing, shipping |
-| `wms-notification-service` | 8089 | Kafka → WebSocket (STOMP) |
-| `wms-ui` | 5173 | React + Vite operator console |
+- Çoklu şirket/tenant desteği
+- Keycloak tabanlı kimlik doğrulama ve yetkilendirme
+- Çok dilli arayüz ve yerelleştirme servisleri
+- Kur/tax yönetimi ve çok para birimli faturalama
+- ERP entegrasyonu ve outbox tabanlı entegrasyon akışı
+- Inbound, inventory transfer ve outbound süreç modülleri
+- Kafka + STOMP ile gerçek zamanlı bildirim akışı
+- React + Vite tabanlı operatör arayüzü
 
-Shared library: `wms-common-events`.
+## Mimari
 
-## Quick start
+### Backend servisleri
+
+| Servis | Port | Sorumluluk |
+|---|---:|---|
+| `wms-core-service` | 8081 | Kimlik/tenant, organizasyon, kullanıcı, dinamik UI, workflow, adres ve çekirdek alanlar |
+| `wms-localization-service` | 8082 | Çeviri, format yönetimi, adres şablonları |
+| `wms-finance-service` | 8083 | Kur oranları, vergi hesaplama altyapısı |
+| `wms-billing-service` | 8084 | Çok para birimli fatura süreçleri |
+| `wms-integration-service` | 8085 | Dış sistem/ERP entegrasyonları ve outbox işleri |
+| `wms-inbound-service` | 8086 | Mal kabul ve yerleştirme (ops profile) |
+| `wms-inventory-service` | 8087 | Stok hareketleri ve transfer (ops profile) |
+| `wms-outbound-service` | 8088 | Toplama, çıkış ve sevkiyat (ops profile) |
+| `wms-notification-service` | 8089 | Kafka olaylarının WebSocket/STOMP’a yayınlanması (ops profile) |
+
+Ortak olay kütüphanesi: `wms-common-events`
+
+### Frontend
+
+- `wms-ui` (React + TypeScript + Vite)
+- Varsayılan erişim: `http://localhost:5173`
+
+## Teknoloji Yığını
+
+- Java 21 + Spring Boot 3
+- Maven (multi-module)
+- PostgreSQL, Redis, Kafka
+- Keycloak
+- React 19 + TypeScript + Vite
+- Docker Compose
+
+## Hızlı Başlangıç (Docker Compose)
+
+### Varsayılan stack
 
 ```bash
 docker compose up -d
 ```
 
-UI: http://localhost:5173  
-Keycloak: http://localhost:8080
+Bu modda temel servisler (core/localization/finance/billing/integration/ui vb.) ayağa kalkar.
 
-## Build
+### Operasyon servisleri ile birlikte
 
 ```bash
-mvn -q -DskipTests package
-cd wms-ui && npm ci && npm run build
+docker compose --profile ops up -d
 ```
 
-## Docs
+Bu profile inbound, inventory, outbound ve notification servislerini de ekler.
 
-Business requirements live under `business_requirements/`. Phase notes are in `proje_fazlari/`.
+### Sık kullanılan adresler
+
+- UI: `http://localhost:5173`
+- Keycloak: `http://localhost:8080`
+- pgAdmin: `http://localhost:5050`
+
+## Yerel Geliştirme
+
+### Backend
+
+Tüm backend modüllerini doğrulamak için:
+
+```bash
+mvn -B -ntp -P ops verify
+```
+
+Tek bir servisi çalıştırmak için:
+
+```bash
+mvn spring-boot:run -pl wms-core-service
+```
+
+Alternatif olarak:
+
+- PowerShell: `./run-service.ps1 wms-core-service`
+- CMD: `run-service.cmd wms-core-service`
+
+### Frontend
+
+```bash
+cd wms-ui
+npm ci
+npm run dev
+```
+
+Diğer komutlar:
+
+- `npm run lint`
+- `npm run build`
+
+## Dizin Yapısı (Özet)
+
+- `/wms-*-service`: Domain bazlı mikroservisler
+- `/wms-common-events`: Ortak event sözleşmeleri
+- `/wms-ui`: Operatör arayüzü
+- `/docker`: Ortam ve altyapı konfigürasyonları
+- `/business_requirements`: İş gereksinimi dokümanları
+- `/proje_fazlari`: Faz planları ve uygulama notları
+
+## Dokümantasyon
+
+- İş gereksinimleri: `business_requirements/`
+- Faz dokümanları: `proje_fazlari/`
