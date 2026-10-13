@@ -35,8 +35,17 @@ public class PutawayEngineService {
      */
     public Optional<StorageLocationResponse> findRecommendedLocation(
             ReceiptItem item, Long warehouseLocationId) {
+        if (item == null) {
+            log.warn("No receipt item provided");
+            return Optional.empty();
+        }
+
         log.info("Starting putaway calculation for item: productCode={}, quantity={}, warehouseLocationId={}",
                 item.getProductCode(), item.getQuantity(), warehouseLocationId);
+        if (warehouseLocationId == null) {
+            log.warn("No warehouse location ID provided");
+            return Optional.empty();
+        }
 
         // 1. Fetch active candidate locations from core service
         List<StorageLocationResponse> allLocations = coreServiceClient.getActiveLocations();
