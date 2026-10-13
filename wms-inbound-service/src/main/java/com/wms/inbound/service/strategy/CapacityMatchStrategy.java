@@ -25,6 +25,13 @@ public class CapacityMatchStrategy implements PutawayStrategy {
     @Override
     public List<StorageLocationResponse> filterLocations(
             List<StorageLocationResponse> candidates, ReceiptItem item) {
+        if (candidates == null || candidates.isEmpty()) {
+            return List.of();
+        }
+        if (item == null) {
+            log.warn("No receipt item provided");
+            return List.of();
+        }
 
         BigDecimal quantity = item.getQuantity();
         if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
