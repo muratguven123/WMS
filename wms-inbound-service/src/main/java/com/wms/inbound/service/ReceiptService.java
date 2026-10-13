@@ -80,10 +80,6 @@ public class ReceiptService {
                     "Receipt number already exists: " + request.receiptNumber(),
                     HttpStatus.CONFLICT);
         }
-
-        inboundOrder.setStatus(InboundOrderStatus.RECEIVING);
-        inboundOrderRepository.save(inboundOrder);
-
         Receipt receipt = Receipt.builder()
                 .inboundOrder(inboundOrder)
                 .receiptNumber(request.receiptNumber())
@@ -112,6 +108,9 @@ public class ReceiptService {
 
         receipt.setItems(receiptItems);
         Receipt saved = receiptRepository.save(receipt);
+
+        inboundOrder.setStatus(InboundOrderStatus.RECEIVING);
+        inboundOrderRepository.save(inboundOrder);
 
         log.info("Receipt started successfully. ID: {}, Number: {}", saved.getId(), saved.getReceiptNumber());
         return mapToResponse(saved);
