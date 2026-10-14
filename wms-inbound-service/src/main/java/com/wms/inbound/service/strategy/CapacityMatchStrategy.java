@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -22,20 +23,21 @@ public class CapacityMatchStrategy implements PutawayStrategy {
         throw new UnsupportedOperationException("Use PutawayEngineService for orchestration");
     }
 
+    /**
+     * @throws NullPointerException {@code candidates} veya {@code item} null ise
+     * @throws IllegalArgumentException kalemin miktarı null ya da pozitif değilse
+     */
     @Override
     public List<StorageLocationResponse> filterLocations(
             List<StorageLocationResponse> candidates, ReceiptItem item) {
-        if (candidates == null || candidates.isEmpty()) {
-            return List.of();
-        }
-        if (item == null) {
-            log.warn("No receipt item provided");
-            return List.of();
+        Objects.requireNonNull(candidates, "candidates must not be null");
+        Objects.requireNonNull(item, "item must not be null");
+        BigDecimal quantity = item.getQuantity();
+        if (quantity == null || quantity.signum() <= 0) {
+            throw new IllegalArgumentException("Receipt item quantity must be positive: " + quantity);
         }
 
-        BigDecimal quantity = item.getQuantity();
-        if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
-            log.warn("Invalid receipt item quantity: {}", quantity);
+        if (candidates.isEmpty()) {
             return List.of();
         }
 

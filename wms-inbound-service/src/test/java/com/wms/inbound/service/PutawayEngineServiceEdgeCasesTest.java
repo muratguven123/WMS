@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -106,5 +108,25 @@ class PutawayEngineServiceEdgeCasesTest {
         Optional<Long> result = putawayEngineService.findPutawayLocation(standardReceiptItem(), 1L);
 
         assertThat(result).contains(77L);
+    }
+
+    @Test
+    @DisplayName("item null ise core-service çağrılmadan NullPointerException atar")
+    void nullItem_failsFastWithoutRemoteCall() {
+        assertThatThrownBy(() -> putawayEngineService.findRecommendedLocation(null, 1L))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("item");
+
+        verifyNoInteractions(coreServiceClient);
+    }
+
+    @Test
+    @DisplayName("warehouseLocationId null ise core-service çağrılmadan NullPointerException atar")
+    void nullWarehouseLocationId_failsFastWithoutRemoteCall() {
+        assertThatThrownBy(() -> putawayEngineService.findRecommendedLocation(standardReceiptItem(), null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("warehouseLocationId");
+
+        verifyNoInteractions(coreServiceClient);
     }
 }

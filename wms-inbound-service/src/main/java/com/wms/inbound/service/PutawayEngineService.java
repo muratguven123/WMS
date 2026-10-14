@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,20 +33,17 @@ public class PutawayEngineService {
 
     /**
      * Tam öneri detayıyla (adres kodu, doluluk) en uygun gözü döner.
+     *
+     * @return uygun göz yoksa {@link Optional#empty()}
+     * @throws NullPointerException {@code item} veya {@code warehouseLocationId} null ise
      */
     public Optional<StorageLocationResponse> findRecommendedLocation(
             ReceiptItem item, Long warehouseLocationId) {
-        if (item == null) {
-            log.warn("No receipt item provided");
-            return Optional.empty();
-        }
+        Objects.requireNonNull(item, "item must not be null");
+        Objects.requireNonNull(warehouseLocationId, "warehouseLocationId must not be null");
 
         log.info("Starting putaway calculation for item: productCode={}, quantity={}, warehouseLocationId={}",
                 item.getProductCode(), item.getQuantity(), warehouseLocationId);
-        if (warehouseLocationId == null) {
-            log.warn("No warehouse location ID provided");
-            return Optional.empty();
-        }
 
         // 1. Fetch active candidate locations from core service
         List<StorageLocationResponse> allLocations = coreServiceClient.getActiveLocations();
